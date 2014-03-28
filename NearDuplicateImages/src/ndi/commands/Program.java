@@ -11,7 +11,7 @@ import ndi.commands.descriptors.DescriptorInfoCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.SetStatsCommand;
 import ndi.commands.indexes.BuildIndexCommand;
-import ndi.commands.indexes.Get5kThresholdCommand;
+import ndi.commands.indexes.EstimateThresholdCommand;
 import ndi.commands.indexes.IndexInfoCommand;
 import ndi.commands.indexes.SearchAllCommand;
 import ndi.commands.indexes.SearchTimeCommand;
@@ -32,7 +32,7 @@ public class Program {
 		program.addCommand(new BuildIndexCommand());
 		program.addCommand(new SetStatsCommand());
 		program.addCommand(new ExtractDescriptorCommand());
-		program.addCommand(new Get5kThresholdCommand());
+		program.addCommand(new EstimateThresholdCommand());
 		program.addCommand(new SearchAllCommand());
 		program.addCommand(new SearchTimeCommand());
 		program.addCommand(new IndexInfoCommand());

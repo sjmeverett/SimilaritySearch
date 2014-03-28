@@ -18,12 +18,11 @@ import commandline.ParameterException;
 import commandline.Parameters;
 import commandline.ProgressReporter;
 
-public class Get5kThresholdCommand implements Command {
+public class EstimateThresholdCommand implements Command {
 	private Parameters parameters;
 	private IndexFileLoader indexLoader;
 	
-	private static final int count = 10000;
-    private static final int queueSize = 50;
+	private static final int count = 1000;
 	
 	@Override
 	public void init(Parameters parameters) {
@@ -40,6 +39,10 @@ public class Get5kThresholdCommand implements Command {
 			Index<Integer, Descriptor> index = indexLoader.load(parameters.require("index"), progress);
 			DescriptorFile<Integer, Descriptor> objects = index.getObjects();
 			double guessThreshold = parameters.getDouble("guess", Double.NaN);
+			
+			int numberOfPairs = parameters.getInt("pairs", 10) * 1000;
+			int queueSize = (int)(1e9 * numberOfPairs / ((double)objects.getCapacity() * (objects.getCapacity() - 1) / 2));
+			System.out.printf("Queue size: %d, Guess: %f\n", queueSize, guessThreshold);
 			
 			Queue<Double> queue = new FixedSizePriorityQueue<Double>(queueSize, Collections.reverseOrder());
 			progress.setOperation("Calculating distances", count);
@@ -60,10 +63,10 @@ public class Get5kThresholdCommand implements Command {
             index.close();
             reporter.stop();
 
-            if (queue.size() < 50)
+            if (queue.size() < queueSize)
                 System.out.printf("Guess is too small: (%d).\n", queue.size());
             else
-                System.out.printf("Estimated 5k threshold: %f\n", queue.remove());
+                System.out.printf("Estimated threshold: %f\n", queue.remove());
 		}
 		catch (ParameterException | IOException ex) {
 			reporter.stop();
@@ -73,18 +76,19 @@ public class Get5kThresholdCommand implements Command {
 
 	@Override
 	public String getName() {
-		return "Get5kThreshold";
+		return "EstimateThreshold";
 	}
 
 	@Override
 	public String describe() {
 		parameters.describe("index", "The index file.");
-		parameters.describe("guess", "A guess for the 5k threshold - it should be larger than the the actual value, "
+		parameters.describe("guess", "A guess for the threshold - it should be larger than the the actual value, "
 				+ "but not so large that the command takes a long time to run.");
+		parameters.describe("pairs", "The number of thousands of pairs that the threshold should return on a"
+				+ "full index search.");
 		
-		return "Performs a search on the dataset using the first 10,000 images as queries.  The closest 50 distances " +
-		        "are kept - the 50th distance should give an indication of the search threshold required to return "
-		        + "5,000 images.";
+		return "Estimates the threshold distance required to return the specified number of pairs from a "
+				+ "full index search.";
 	}
 
 }

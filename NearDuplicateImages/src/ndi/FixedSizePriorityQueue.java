@@ -16,6 +16,8 @@ public class FixedSizePriorityQueue<E> extends PriorityQueue<E> {
 	
 	public FixedSizePriorityQueue(int fixedSize, Comparator<? super E> comparator) {
 		super(fixedSize + 1, comparator);
+		
+		this.fixedSize = fixedSize;
 	}
 	
 	@Override
