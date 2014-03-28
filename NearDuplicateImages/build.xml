@@ -8,9 +8,9 @@
                 <attribute name="Main-Class" value="ndi.commands.Program"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="/Users/stewart/workspace/NearDuplicateImages/bin"/>
-            <fileset dir="/Users/stewart/workspace/CommandLine/bin"/>
-            <fileset dir="/Users/stewart/workspace/MetricSpaces/bin"/>
+            <fileset dir="/Users/stewart/git/SimilaritySearch/NearDuplicateImages/bin"/>
+            <fileset dir="/Users/stewart/git/SimilaritySearch/CommandLine/bin"/>
+            <fileset dir="/Users/stewart/git/SimilaritySearch/MetricSpaces/bin"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/eclipse/plugins/org.junit_4.11.0.v201303080030/junit.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/Applications/eclipse/plugins/org.hamcrest.core_1.3.0.v201303031735.jar"/>
         </jar>
