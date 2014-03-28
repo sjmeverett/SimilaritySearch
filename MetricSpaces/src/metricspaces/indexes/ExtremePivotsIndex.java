@@ -87,14 +87,6 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
         if (!header.isWritable())
             throw new IllegalStateException("Cannot build index in read-only mode.");
 
-        //write header
-        buffer.putInt(numberOfPivots);
-        buffer.putInt(numberOfGroups);
-        buffer.putDouble(mu);
-
-        //write pivots
-        initialisePivots();
-
         //build the pivot table
         progress.setOperation("Building index", numberOfObjects);
         buffer.position(tableOffset);
