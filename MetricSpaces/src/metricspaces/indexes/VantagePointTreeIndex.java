@@ -158,7 +158,7 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
 
             if (distance <= searchRadius) {
                 //this point is within the distance threshold to the query object, so add it to the results
-                results.add(new SearchResult<ObjectType>(vantagePoint.getObject(), distance));
+                results.add(new SearchResult<ObjectType>(vantagePoint.getObject(), distance, objectID));
             }
 
             if (left != 0 && distance <= nodeRadius + searchRadius) {

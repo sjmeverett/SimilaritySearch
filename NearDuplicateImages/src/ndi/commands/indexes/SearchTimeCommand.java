@@ -1,15 +1,13 @@
 package ndi.commands.indexes;
 
 import java.io.IOException;
-import java.util.List;
 
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
-import metricspaces.indexes.SearchResult;
+import metricspaces.indexes.PivotedList;
 import ndi.files.IndexFileLoader;
-import ndi.files.PairDistanceWriter;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -38,23 +36,37 @@ public class SearchTimeCommand implements Command {
 			
 			double radius = parameters.getDouble("radius", Double.NaN);
 			int count = parameters.getInt("count", 1000);
+			long resultCount = 0;
 			
 			progress.setOperation("Searching", count);
 			
 			long time = System.currentTimeMillis();
 			
-			for (int i = 0; i < count; i++) {
-                Descriptor query = objects.get(i).getDescriptor();
-                index.search(query, radius);
-                progress.incrementDone();
-            }
-
+			if (index instanceof PivotedList) {
+				PivotedList<Integer, Descriptor> plindex = (PivotedList<Integer, Descriptor>)index;
+				
+				for (int i = 0; i < count; i++) {
+					Descriptor query = objects.get(i).getDescriptor();
+					double[] queryList = plindex.getDistanceList(i);
+					resultCount += plindex.search(query, queryList, radius).size();
+					progress.incrementDone();
+				}
+			}
+			else {
+				for (int i = 0; i < count; i++) {
+	                Descriptor query = objects.get(i).getDescriptor();
+	                resultCount += index.search(query, radius).size();
+	                progress.incrementDone();
+	            }
+			}
+			
 			time = System.currentTimeMillis() - time;
 			
             index.close();
             reporter.stop();
             System.out.printf("Average time: %.0f ms\n", (double)time / count);
             System.out.printf("Average calculations: %.0f\n", (double)index.getNumberOfDistanceCalculations() / count);
+            System.out.printf("Number of results: %d\n", resultCount);
 		}
 		catch (ParameterException | IOException ex) {
 			reporter.stop();

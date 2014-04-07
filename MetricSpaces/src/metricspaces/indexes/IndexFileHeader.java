@@ -12,6 +12,7 @@ public class IndexFileHeader extends LargeBinaryFile {
 	
 	public static final byte VP_TREE = 0;
 	public static final byte EXTREME_PIVOTS = 1;
+	public static final byte PIVOTED_LIST = 2;
 	
 	public IndexFileHeader(String path) throws IOException {
 		super(path);

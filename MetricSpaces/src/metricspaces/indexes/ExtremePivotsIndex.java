@@ -179,7 +179,7 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
                 double distance = getDistance(query, object.getDescriptor());
 
                 if (distance <= radius)
-                    results.add(new SearchResult<ObjectType>(object.getObject(), distance));
+                    results.add(new SearchResult<ObjectType>(object.getObject(), distance, i));
             }
 
             position += recordSize;

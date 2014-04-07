@@ -53,6 +53,10 @@ public class Parameters {
 			return Double.parseDouble(value);
 	}
 	
+	public double getDouble(String name) throws ParameterException {
+		return Double.parseDouble(require(name));
+	}
+	
 	public boolean getBoolean(String name, boolean defaultValue) {
 		String value = get(name);
 		

@@ -9,10 +9,12 @@ import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.ExtremePivotsIndex;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.IndexFileHeader;
+import metricspaces.indexes.PivotedList;
 import metricspaces.indexes.VantagePointTreeIndex;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
 import ndi.RelativePath;
+
 import commandline.ParameterException;
 import commandline.Parameters;
 
@@ -36,10 +38,10 @@ public class IndexFileLoader {
 	
 	
 	public void describe() {
-		parameters.describe("indeximplementation", "The implementation of index to use, either EP for extreme pivots "
-				+ "or VP for a vantage point tree.");
+		parameters.describe("indeximplementation", "The implementation of index to use: EP for extreme pivots "
+				+ ", VP for a vantage point tree or PL for a pivoted list.");
 		parameters.describe("l", "For extreme pivots: the number of pivot groups to use.");
-		parameters.describe("m", "For extreme pivots: the number of pivots in each group to use.");
+		parameters.describe("m", "For extreme pivots / pivoted list: the number of pivots to use.");
 		parameters.describe("mu", "For extreme pivots: the average distance in the metric space.");
 	}
 	
@@ -70,6 +72,9 @@ public class IndexFileLoader {
 			Class<Descriptor> descriptorClass = (Class<Descriptor>)objects.get(0).getDescriptor().getClass();
 			return new ExtremePivotsIndex<Integer, Descriptor>(descriptorClass, header, objects, metric, progress);
 		
+		case IndexFileHeader.PIVOTED_LIST:
+			return new PivotedList<Integer, Descriptor>(header, objects, metric, progress);
+			
 		default:
 			throw new UnsupportedOperationException("index type not supported");
 		}
@@ -100,15 +105,18 @@ public class IndexFileLoader {
 			IndexFileHeader header = new IndexFileHeader(path, IndexFileHeader.EXTREME_PIVOTS, descriptorFile, metric.getName());
 			int l = parameters.getInt("l", 10);
 			int m = parameters.getInt("m", 1);
-			double mu = parameters.getDouble("mu", Double.NaN);
-			
-			if (Double.isNaN(mu))
-				throw new ParameterException("expected value for parameter mu");
+			double mu = parameters.getDouble("mu");
 			
 			@SuppressWarnings("unchecked")
 			Class<Descriptor> descriptorClass = (Class<Descriptor>)objects.get(0).getDescriptor().getClass();
 			
 			return new ExtremePivotsIndex<>(descriptorClass, header, objects, metric, m, l, mu, progress);
+		}
+		else if (indexImplementation.equals("PL")) {
+			IndexFileHeader header = new IndexFileHeader(path, IndexFileHeader.PIVOTED_LIST, descriptorFile, metric.getName());
+			int m = parameters.getInt("m", 10);
+			
+			return new PivotedList<Integer, Descriptor>(header, objects, metric, m, progress);
 		}
 		else {
 			throw new ParameterException("index implementation not recognised");

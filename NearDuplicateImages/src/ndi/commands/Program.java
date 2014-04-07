@@ -12,8 +12,10 @@ import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.SetStatsCommand;
 import ndi.commands.indexes.BuildIndexCommand;
 import ndi.commands.indexes.EstimateThresholdCommand;
+import ndi.commands.indexes.FindClosestPairsCommand;
 import ndi.commands.indexes.IndexInfoCommand;
 import ndi.commands.indexes.SearchAllCommand;
+import ndi.commands.indexes.SearchCommand;
 import ndi.commands.indexes.SearchTimeCommand;
 
 import commandline.CommandLineProgram;
@@ -36,6 +38,8 @@ public class Program {
 		program.addCommand(new SearchAllCommand());
 		program.addCommand(new SearchTimeCommand());
 		program.addCommand(new IndexInfoCommand());
+		program.addCommand(new FindClosestPairsCommand());
+		program.addCommand(new SearchCommand());
 		program.run(args);
 	}
 }

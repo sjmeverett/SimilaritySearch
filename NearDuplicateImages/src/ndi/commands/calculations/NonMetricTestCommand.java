@@ -102,7 +102,7 @@ public class NonMetricTestCommand implements Command {
 			
 			if (!object.getObject().equals(queryID)) {
 				double distance = metric.getDistance(object.getDescriptor(), queryDescriptor);
-				results.add(new SearchResult<>(object.getObject(), distance));
+				results.add(new SearchResult<>(object.getObject(), distance, i));
 			}
 		}
 		
