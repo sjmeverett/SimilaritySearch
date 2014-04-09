@@ -13,29 +13,29 @@ import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 
-public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor> implements Index<ObjectType, DescriptorType> {
+public class VantagePointTreeIndex implements Index {
 	private final IndexFileHeader header;
-	private final DescriptorFile<ObjectType, DescriptorType> objects;
-	private final Metric<DescriptorType> metric;
+	private final DescriptorFile objects;
+	private final Metric metric;
 	private final ByteBuffer buffer;
 	private final Progress progress;
-	private final int numberOfObjects;
+	private final int capacity;
 	private int distanceCalculations;
 	
 	private static final int NODE_SIZE = 28;
 	
 	
-	public VantagePointTreeIndex(IndexFileHeader header, DescriptorFile<ObjectType, DescriptorType> objects,
-			Metric<DescriptorType> metric, Progress progress) throws IOException {
+	public VantagePointTreeIndex(IndexFileHeader header, DescriptorFile objects, Metric metric, Progress progress)
+			throws IOException {
 		
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
 		this.progress = progress;
-		numberOfObjects = objects.getCapacity();
+		capacity = header.getCapacity();
 		
 		if (header.isWritable()) {
-			header.resize(header.getDataOffset() + numberOfObjects * NODE_SIZE);
+			header.resize(header.getDataOffset() + capacity * NODE_SIZE);
 		}
 		
 		buffer = header.getBuffer();
@@ -43,24 +43,24 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
 	
 	
 	@Override
-	public void build() {
+	public void build(List<Integer> keys) {
 		if (!header.isWritable())
             throw new IllegalStateException("Cannot build index in read-only mode.");
 
-        progress.setOperation("Building index", numberOfObjects);
+        progress.setOperation("Building index", keys.size());
 
         //make a list with pointers to all the records
-        List<ObjectPointer> nodes = new ArrayList<ObjectPointer>(numberOfObjects);
+        List<ObjectPointer> nodes = new ArrayList<ObjectPointer>(keys.size());
 
-        for (int i = 0; i < numberOfObjects; i++) {
+        for (Integer i: keys) {
             nodes.add(new ObjectPointer(i));
         }
 
-        createNode(nodes, 0, numberOfObjects - 1, null);
+        createNode(nodes, 0, capacity - 1, null);
     }
 
 
-    private int createNode(List<ObjectPointer> nodes, int start, int end, DescriptorType parent) {
+    private int createNode(List<ObjectPointer> nodes, int start, int end, Descriptor parent) {
         int nodeOffset = buffer.position();
         //reserve space for the node
         buffer.position(nodeOffset + NODE_SIZE);
@@ -71,7 +71,7 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
         int right = 0;
 
         final int vantagePointObjectId = nodes.get(start).getObjectID();
-        final DescriptorType vantagePoint = objects.get(vantagePointObjectId).getDescriptor();
+        final Descriptor vantagePoint = objects.get(vantagePointObjectId);
 
         int size = end - start + 1;
 
@@ -84,8 +84,8 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
             Comparator<ObjectPointer> comparator = new Comparator<ObjectPointer>() {
                 @Override
                 public int compare(ObjectPointer a, ObjectPointer b) {
-                    double distanceA = a.distance(vantagePointObjectId, vantagePoint, objects);
-                    double distanceB = b.distance(vantagePointObjectId, vantagePoint, objects);
+                    double distanceA = a.distance(vantagePointObjectId, vantagePoint);
+                    double distanceB = b.distance(vantagePointObjectId, vantagePoint);
 
                     return Double.compare(distanceA, distanceB);
                 }
@@ -94,7 +94,7 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
             //set the radius to be the median distance from the vantage point to all the other points
             int medianIndex = (end - start) / 2 + start;
             ObjectPointer medianPointer = ListUtilities.quickSelect(nodes, start, end, medianIndex, comparator);
-            radius = medianPointer.distance(vantagePointObjectId, vantagePoint, objects);
+            radius = medianPointer.distance(vantagePointObjectId, vantagePoint);
 
             //everything less than or equal to the median distance (i.e., inside the circle)
             //goes in the left subtree
@@ -129,16 +129,24 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
     }
 
 	@Override
-	public List<SearchResult<ObjectType>> search(DescriptorType query, double radius) {
-		List<SearchResult<ObjectType>> results = new ArrayList<SearchResult<ObjectType>>();
+	public List<SearchResult> search(Descriptor query, double radius) {
+		List<SearchResult> results = new ArrayList<SearchResult>();
 		
         search(0, query, radius, results, Double.NaN);
 
         return results;
     }
+	
+	
+	@Override
+	public List<SearchResult> search(int position, double radius) {
+		buffer.position(header.getDataOffset() + position * NODE_SIZE + 24);
+		int key = buffer.getInt();
+		return search(objects.get(key), radius);
+	}
 
 
-    private void search(int offset, DescriptorType query, double searchRadius, List<SearchResult<ObjectType>> results, double parentToQueryDistance) {
+    private void search(int offset, Descriptor query, double searchRadius, List<SearchResult> results, double parentToQueryDistance) {
         //move the buffer position to the start of the node
         buffer.position(offset);
 
@@ -153,12 +161,12 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
             || Math.abs(parentToThisDistance - parentToQueryDistance) <= nodeRadius + searchRadius)
         {
             int objectID = buffer.getInt();
-            ObjectWithDescriptor<ObjectType, DescriptorType> vantagePoint = objects.get(objectID);
-            double distance = getDistance(query, vantagePoint.getDescriptor());
+            Descriptor vantagePoint = objects.get(objectID);
+            double distance = getDistance(query, vantagePoint);
 
             if (distance <= searchRadius) {
                 //this point is within the distance threshold to the query object, so add it to the results
-                results.add(new SearchResult<ObjectType>(vantagePoint.getObject(), distance, objectID));
+                results.add(new SearchResult(objectID, distance));
             }
 
             if (left != 0 && distance <= nodeRadius + searchRadius) {
@@ -194,12 +202,17 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
 	}
 	
 	@Override
-	public DescriptorFile<ObjectType, DescriptorType> getObjects() {
+	public DescriptorFile getObjects() {
 		return objects;
+	}
+
+	@Override
+	public IndexFileHeader getHeader() {
+		return header;
 	}
 	
 	
-	private double getDistance(DescriptorType x, DescriptorType y) {
+	private double getDistance(Descriptor x, Descriptor y) {
 		distanceCalculations++;
 		return metric.getDistance(x, y);
 	}
@@ -219,10 +232,10 @@ public class VantagePointTreeIndex<ObjectType, DescriptorType extends Descriptor
 	        return objectID;
 	    }
 
-	    public double distance(int vantagePointObjectID, DescriptorType vantagePoint, DescriptorFile<ObjectType, DescriptorType> points) {
+	    public double distance(int vantagePointObjectID, Descriptor vantagePoint) {
 	        if (this.vantagePointObjectID != vantagePointObjectID) {
 	            this.vantagePointObjectID = vantagePointObjectID;
-	            this.distance = getDistance(vantagePoint, points.get(objectID).getDescriptor());
+	            this.distance = getDistance(vantagePoint, objects.get(objectID));
 	        }
 
 	        return distance;

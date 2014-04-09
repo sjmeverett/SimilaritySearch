@@ -3,11 +3,9 @@ package ndi.commands.descriptors;
 import java.io.IOException;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
-import metricspaces.metrics.Metric;
-import ndi.MetricLoader;
 import ndi.files.DescriptorFileLoader;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -30,7 +28,7 @@ public class SetStatsCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile<Integer, Descriptor> objects = descriptorLoader.load(parameters.require("file"));
+			DescriptorFile objects = descriptorLoader.load(parameters.require("file"));
 			
 			double elementMean = getElementMean(objects, progress);
 			double elementMax = Double.NEGATIVE_INFINITY;
@@ -39,7 +37,7 @@ public class SetStatsCommand implements Command {
 			progress.setOperation("Calculating std deviation", objects.getCapacity());
 			
 			for (int i = 0; i < objects.getCapacity(); i++) {
-				double[] data = objects.get(i).getDescriptor().getData();
+				double[] data = objects.get(i).getData();
 				
 				for (int j = 0; j < data.length; j++) {
 					double d = elementMean - data[j];
@@ -68,13 +66,13 @@ public class SetStatsCommand implements Command {
 	}
 	
 	
-	private double getElementMean(DescriptorFile<Integer, Descriptor> objects, Progress progress) {
+	private double getElementMean(DescriptorFile objects, Progress progress) {
 		double sum = 0;
 		
 		progress.setOperation("Calculating element mean.", objects.getCapacity());
 		
 		for (int i = 0; i < objects.getCapacity(); i++) {
-			double[] data = objects.get(i).getDescriptor().getData();
+			double[] data = objects.get(i).getData();
 			
 			for (int j = 0; j < data.length; j++)
 				sum += data[j];

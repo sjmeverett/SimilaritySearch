@@ -12,7 +12,7 @@ import metricspaces.descriptors.ObjectWithDescriptor;
  * @author stewart
  *
  */
-public class DoubleDescriptorFile implements DescriptorFile<Integer, Descriptor> {
+public class DoubleDescriptorFile implements DescriptorFile {
 	private DescriptorFileHeader header;
 	private final ByteBuffer buffer;
 	private final int dataOffset, dimensions, capacity, recordSize;
@@ -22,7 +22,7 @@ public class DoubleDescriptorFile implements DescriptorFile<Integer, Descriptor>
 		dataOffset = header.getDataOffset();
 		dimensions = header.getDimensions();
 		capacity = header.getCapacity();
-		recordSize = dimensions * 8 + 4;
+		recordSize = dimensions * 8;
 		
 		if (header.isWritable()) {
 			header.resize(dataOffset + recordSize * capacity);
@@ -33,43 +33,46 @@ public class DoubleDescriptorFile implements DescriptorFile<Integer, Descriptor>
 	}
 
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get() {
-		int objectId = buffer.getInt();
+	public Descriptor get() {
 		double[] data = new double[dimensions];
 		
 		for (int i = 0; i < data.length; i++) {
 			data[i] = buffer.getDouble(); 
 		}
 		
-		return new ObjectWithDescriptor<Integer, Descriptor>(objectId, new DoubleDescriptor(data));
+		return new DoubleDescriptor(data);
 	}
 
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get(int index) {
-		if (index >= capacity)
-			throw new ArrayIndexOutOfBoundsException(index);
-		
+	public Descriptor get(int index) {
 		position(index);
 		return get();
 	}
 
 	@Override
-	public void put(ObjectWithDescriptor<Integer, Descriptor> object) {
+	public void put(Descriptor descriptor) {
 		if (!header.isWritable())
 			throw new IllegalStateException("file is not writable");
-			
-		buffer.putInt(object.getObject());
 		
-		double[] data = object.getDescriptor().getData();
+		double[] data = descriptor.getData();
 		assert(data.length == dimensions);
 		
 		for (int i = 0; i < data.length; i++) {
 			buffer.putDouble(data[i]);
 		}
 	}
+	
+	@Override
+	public void put(int index, Descriptor descriptor) {
+		position(index);
+		put(descriptor);
+	}
 
 	@Override
 	public void position(int index) {
+		if (index >= capacity)
+			throw new ArrayIndexOutOfBoundsException(index);
+		
 		buffer.position(dataOffset + index * recordSize);
 	}
 

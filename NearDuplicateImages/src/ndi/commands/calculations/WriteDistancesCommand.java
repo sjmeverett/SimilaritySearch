@@ -34,18 +34,18 @@ public class WriteDistancesCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile<Integer, Descriptor> objects = loader.load(parameters.require("objects"));
-			Metric<Descriptor> metric = metrics.getMetric(objects.getHeader());
+			DescriptorFile objects = loader.load(parameters.require("objects"));
+			Metric metric = metrics.getMetric(objects.getHeader());
 			int count = parameters.getInt("count", 1000);
 			
 			BufferedWriter writer = new BufferedWriter(new FileWriter(parameters.require("output")));
 			progress.setOperation("Calculating distances", count * (count - 1) / 2);
 			
 			for (int i = 0; i < count; i++) {
-				Descriptor x = objects.get(i).getDescriptor();
+				Descriptor x = objects.get(i);
 				
 				for (int j = i + 1; j < count; j++) {
-					Descriptor y = objects.get(j).getDescriptor();
+					Descriptor y = objects.get(j);
 					double distance = metric.getDistance(x, y);
 					
 					writer.write(String.format("%f\n", distance));

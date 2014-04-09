@@ -8,12 +8,13 @@ import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
 import ndi.files.DescriptorFileLoader;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
 import commandline.ProgressReporter;
 
-public class SetStatsCommand implements Command {
+public class GetMeanDistanceCommand implements Command {
 	private Parameters parameters;
 	private DescriptorFileLoader descriptorLoader;
 	private MetricLoader metricLoader;
@@ -33,8 +34,8 @@ public class SetStatsCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile<Integer, Descriptor> objects = descriptorLoader.load(parameters.require("file"));
-			Metric<Descriptor> metric = metricLoader.getMetric(objects.getHeader());
+			DescriptorFile objects = descriptorLoader.load(parameters.require("file"));
+			Metric metric = metricLoader.getMetric(objects.getHeader());
 			
 			int n = MEAN_COUNT * (MEAN_COUNT - 1) / 2;
 			double sum = 0;
@@ -42,10 +43,10 @@ public class SetStatsCommand implements Command {
 			progress.setOperation("Calculating mean distance", n);
 			
 			for (int i = 0; i < MEAN_COUNT; i++) {
-				Descriptor x = objects.get(i).getDescriptor();
+				Descriptor x = objects.get(i);
 				
 				for (int j = i + 1; j < MEAN_COUNT; j++) {
-					Descriptor y = objects.get(j).getDescriptor();
+					Descriptor y = objects.get(j);
 					sum += metric.getDistance(x, y);
 					progress.incrementDone();
 				}

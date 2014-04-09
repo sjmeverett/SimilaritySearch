@@ -15,7 +15,7 @@ import metricspaces.descriptors.ObjectWithDescriptor;
  * @author stewart
  *
  */
-public class ByteDescriptorFile implements DescriptorFile<Integer, Descriptor> {
+public class ByteDescriptorFile implements DescriptorFile {
 	private DescriptorFileHeader header;
 	private final ByteBuffer buffer;
 	private final int dataOffset, dimensions, capacity, recordSize;
@@ -26,7 +26,7 @@ public class ByteDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 		buffer = header.getBuffer();
 		dimensions = header.getDimensions();
 		capacity = header.getCapacity();
-		recordSize = dimensions + 4;
+		recordSize = dimensions;
 		
 		double elementMax = buffer.getDouble();
 		int l1norm = buffer.getInt();
@@ -42,7 +42,7 @@ public class ByteDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 		this.header = header;
 		dimensions = header.getDimensions();
 		capacity = header.getCapacity();
-		recordSize = dimensions + 4;
+		recordSize = dimensions;
 		
 		ByteBuffer b = header.getBuffer();
 		b.putDouble(elementMax);
@@ -56,34 +56,41 @@ public class ByteDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 	}
 	
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get() {
-		int objectId = buffer.getInt();
+	public Descriptor get() {
 		byte[] data = new byte[dimensions];
 		buffer.get(data);
 		
-		ByteDescriptor descriptor = new ByteDescriptor(data, descriptorContext);
-		return new ObjectWithDescriptor<Integer, Descriptor>(objectId, descriptor);
+		return new ByteDescriptor(data, descriptorContext);
 	}
 
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get(int index) {
-		if (index > capacity)
-			throw new ArrayIndexOutOfBoundsException(index);
-		
+	public Descriptor get(int index) {	
 		position(index);
 		return get();
 	}
 
 	@Override
-	public void put(ObjectWithDescriptor<Integer, Descriptor> object) {
+	public void put(Descriptor descriptor) {
 		if (!header.isWritable())
 			throw new IllegalStateException("file is not writable");
 		
-		buffer.putInt(object.getObject());
+		if (!(descriptor instanceof ByteDescriptor))
+			throw new IllegalArgumentException("descriptor is not a byte descriptor");
+		
+		buffer.put(((ByteDescriptor)descriptor).getByteData());
+	}
+	
+	@Override
+	public void put(int index, Descriptor descriptor) {
+		position(index);
+		put(descriptor);
 	}
 
 	@Override
 	public void position(int index) {
+		if (index > capacity)
+			throw new ArrayIndexOutOfBoundsException(index);
+		
 		buffer.position(dataOffset + index * recordSize);
 	}
 

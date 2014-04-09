@@ -44,6 +44,10 @@ public class Parameters {
 			return Integer.parseInt(value);
 	}
 	
+	public int getInt(String name) throws ParameterException {
+		return Integer.parseInt(require(name));
+	}
+	
 	public double getDouble(String name, double defaultValue) {
 		String value = get(name);
 		

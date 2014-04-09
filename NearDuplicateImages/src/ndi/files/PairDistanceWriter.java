@@ -20,13 +20,13 @@ public class PairDistanceWriter {
     }
 
     
-    public void write(PairDistance<Integer> pair) throws IOException {
+    public void write(PairDistance pair) throws IOException {
     	write(pair.getObject1(), pair.getObject2(), pair.getDistance());
     }
     
     
-    public void writeAll(Iterable<PairDistance<Integer>> pairs) throws IOException {
-    	for (PairDistance<Integer> pair: pairs)
+    public void writeAll(Iterable<PairDistance> pairs) throws IOException {
+    	for (PairDistance pair: pairs)
     		write(pair);
     }
     

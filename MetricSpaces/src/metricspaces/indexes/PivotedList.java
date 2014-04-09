@@ -12,43 +12,41 @@ import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 
-public class PivotedList<ObjectType, DescriptorType extends Descriptor> implements Index<ObjectType, DescriptorType> {
+public class PivotedList implements Index {
 	private final IndexFileHeader header;
 	private final ByteBuffer buffer;
-	private final int numberOfPivots, numberOfObjects, itemsOffset, itemSize;
-	private final DescriptorFile<ObjectType, DescriptorType> objects;
-	private final List<DescriptorType> pivots;
-	private final Metric<DescriptorType> metric;
+	private final int capacity, numberOfPivots, itemsOffset, itemSize;
+	private final DescriptorFile objects;
+	private final Descriptor[] pivots;
+	private final Metric metric;
 	private final Progress progress;
 	
 	private int distanceCalculations;
 	
 	
-	public PivotedList(IndexFileHeader header, DescriptorFile<ObjectType, DescriptorType> objects,
-			Metric<DescriptorType> metric, Progress progress) {
-		
+	public PivotedList(IndexFileHeader header, DescriptorFile objects, Metric metric, Progress progress) {
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
 		this.progress = progress;
-		numberOfObjects = objects.getCapacity();
+		capacity = header.getCapacity();
 		
 		buffer = header.getBuffer();
 		numberOfPivots = buffer.getInt();
-		pivots = new ArrayList<>();
+		pivots = new Descriptor[numberOfPivots];
 		
 		for (int i = 0; i < numberOfPivots; i++) {
 			int pivot = buffer.getInt();
-			pivots.add(objects.get(pivot).getDescriptor());
+			pivots[i] = objects.get(pivot);
 		}
 		
 		itemsOffset = buffer.position();
-		itemSize = numberOfPivots * 8;
+		itemSize = numberOfPivots * 8 + 4;
 	}
 	
 	
-	public PivotedList(IndexFileHeader header, DescriptorFile<ObjectType, DescriptorType> objects,
-			Metric<DescriptorType> metric, int numberOfPivots, Progress progress) throws IOException {
+	public PivotedList(IndexFileHeader header, DescriptorFile objects, Metric metric, int numberOfPivots, Progress progress)
+			throws IOException {
 		
 		if (!header.isWritable())
 			throw new IllegalArgumentException("header must be writable for this constructor");
@@ -58,33 +56,34 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 		this.metric = metric;
 		this.progress = progress;
 		this.numberOfPivots = numberOfPivots;
-		numberOfObjects = objects.getCapacity();
+		capacity = header.getCapacity();
 		
 		ByteBuffer b = header.getBuffer();
 		b.putInt(numberOfPivots);
 		itemsOffset = b.position() + numberOfPivots * 4;
-		itemSize = numberOfPivots * 8;
+		itemSize = numberOfPivots * 8 + 4;
 		
-		header.resize(itemsOffset + numberOfObjects * itemSize);
+		header.resize(itemsOffset + capacity * itemSize);
 		
 		buffer = header.getBuffer();
-		pivots = new ArrayList<>();
+		pivots = new Descriptor[numberOfPivots];
 		
 		for (int i = 0; i < numberOfPivots; i++) {
-			int pivot = RandomHelper.getNextInt(0, numberOfObjects - 1);
-			pivots.add(objects.get(pivot).getDescriptor());
+			int pivot = RandomHelper.getNextInt(0, capacity - 1);
+			pivots[i] = objects.get(pivot);
 			buffer.putInt(pivot);
 		}	
 	}
 	
 
 	@Override
-	public void build() {
-		progress.setOperation("Building index", numberOfObjects);
+	public void build(List<Integer> keys) {
+		progress.setOperation("Building index", keys.size());
 		buffer.position(itemsOffset);
 		
-		for (int i = 0; i < numberOfObjects; i++) {
-			DescriptorType descriptor = objects.get(i).getDescriptor();
+		for (Integer i: keys) {
+			buffer.putInt(i);
+			Descriptor descriptor = objects.get(i);
 			double[] item = getDistanceList(descriptor);
 			
 			for (double d: item) {
@@ -97,16 +96,31 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 	
 
 	@Override
-	public List<SearchResult<ObjectType>> search(DescriptorType query, double radius) {
+	public List<SearchResult> search(Descriptor query, double radius) {
 		return search(query, getDistanceList(query), radius);
 	}
 	
 	
-	public List<SearchResult<ObjectType>> search(DescriptorType queryDescriptor, double[] queryList, double radius) {
-		List<SearchResult<ObjectType>> results = new ArrayList<>();
+	@Override
+	public List<SearchResult> search(int position, double radius) {
+		double[] list = new double[numberOfPivots];
 		
-		for (int i = 0; i < numberOfObjects; i++) {
-			SearchResult<ObjectType> result = getDistance(queryDescriptor, queryList, i, radius);
+		buffer.position(itemsOffset + itemSize * position);
+		int key = buffer.getInt();
+		
+		for (int i = 0; i < numberOfPivots; i++) {
+			list[i] = buffer.getDouble();
+		}
+		
+		return search(objects.get(key), list, radius);
+	}
+	
+	
+	private List<SearchResult> search(Descriptor queryDescriptor, double[] queryList, double radius) {
+		List<SearchResult> results = new ArrayList<>();
+		
+		for (int i = 0; i < capacity; i++) {
+			SearchResult result = getDistance(queryDescriptor, queryList, i, radius);
 			
 			if (result != null) {
 				results.add(result);
@@ -115,35 +129,23 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 		
 		return results;
 	}
+
 	
-	
-	public double[] getDistanceList(int index) {
-		double[] table = new double[numberOfPivots];
-		
-		buffer.position(itemsOffset + itemSize * index);
+	private double[] getDistanceList(Descriptor descriptor) {
+		double[] list = new double[numberOfPivots];
 		
 		for (int i = 0; i < numberOfPivots; i++) {
-			table[i] = buffer.getDouble();
-		}
-		
-		return table;
-	}
-	
-	
-	private double[] getDistanceList(DescriptorType descriptor) {
-		double[] table = new double[numberOfPivots];
-		
-		for (int i = 0; i < numberOfPivots; i++) {
-            table[i] = distance(descriptor, pivots.get(i));
+            list[i] = distance(descriptor, pivots[i]);
         }
 		
-		return table;
+		return list;
 	}
 	
 	
-	private SearchResult<ObjectType> getDistance(DescriptorType queryDescriptor, double[] queryList, int entryIndex, double radius) {
+	private SearchResult getDistance(Descriptor queryDescriptor, double[] queryList, int entryIndex, double radius) {
 		//reading directly from the buffer is much faster than using getDistanceList here...
 		buffer.position(itemsOffset + itemSize * entryIndex);
+		int key = buffer.getInt();
 		
 		//check if we're able to rule out a distance calculation
 		for (int i = 0; i < queryList.length; i++) {
@@ -153,37 +155,14 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 		}
 		
 		//haven't been able to rule it out, better do a calculation
-		ObjectWithDescriptor<ObjectType, DescriptorType> obj = objects.get(entryIndex);
-        double distance = distance(queryDescriptor, obj.getDescriptor());
+		Descriptor descriptor = objects.get(key);
+        double distance = distance(queryDescriptor, descriptor);
         
         if (distance < radius)
-        	return new SearchResult<ObjectType>(obj.getObject(), distance, entryIndex);
+        	return new SearchResult(key, distance);
         else
         	return null;
 	}
-	
-	
-	public SearchResult<ObjectType> findNearestNeighbour(DescriptorType queryDescriptor, double[] queryList,
-			int queryIndex, double radius) {
-		
-    	double min = Double.POSITIVE_INFINITY;
-		SearchResult<ObjectType> closest = null;
-		
-		for (int i = 0; i < numberOfObjects; i++) {
-			//skip cases where the query is the current entry
-			if (i == queryIndex)
-				continue;
-
-			SearchResult<ObjectType> result = getDistance(queryDescriptor, queryList, i, radius);
-			
-			if (result != null && result.getDistance() < min) {
-				min = result.getDistance();
-				closest = result;
-			}
-		}
-		
-		return closest;
-    }
 	
 
 	@Override
@@ -196,7 +175,7 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 		distanceCalculations = 0;
 	}
 	
-	private double distance(DescriptorType x, DescriptorType y) {
+	private double distance(Descriptor x, Descriptor y) {
 		distanceCalculations++;
 		return metric.getDistance(x, y);
 	}
@@ -207,7 +186,12 @@ public class PivotedList<ObjectType, DescriptorType extends Descriptor> implemen
 	}
 
 	@Override
-	public DescriptorFile<ObjectType, DescriptorType> getObjects() {
+	public DescriptorFile getObjects() {
 		return objects;
+	}
+	
+	@Override
+	public IndexFileHeader getHeader() {
+		return header;
 	}
 }

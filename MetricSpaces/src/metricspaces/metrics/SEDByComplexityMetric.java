@@ -2,7 +2,7 @@ package metricspaces.metrics;
 
 import metricspaces.descriptors.Descriptor;
 
-public class SEDByComplexityMetric implements Metric<Descriptor> {
+public class SEDByComplexityMetric implements Metric {
 	public static final double FINAL_POWER = 0.486;
 
 	@Override

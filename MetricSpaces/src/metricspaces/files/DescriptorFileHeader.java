@@ -11,6 +11,7 @@ public class DescriptorFileHeader extends LargeBinaryFile {
     
     public static final byte DOUBLE_TYPE = 0;
     public static final byte BYTE_TYPE = 1;
+    public static final byte SINGLE_TYPE = 2;
     
     
 	public DescriptorFileHeader(String path) throws IOException {

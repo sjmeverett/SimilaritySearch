@@ -3,7 +3,6 @@ package ndi.commands.calculations;
 import java.io.IOException;
 
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
@@ -29,39 +28,11 @@ public class GetDistanceCommand implements Command {
 	public void run() {
 		try {
 			String path = parameters.require("descriptors");
-			DescriptorFile<Integer, Descriptor> objects = loader.load(path);
-			Metric<Descriptor> metric = metrics.getMetric(objects.getHeader());
-			int xid = parameters.getInt("x", -1), yid = parameters.getInt("y", -1);
-			Descriptor x = null, y = null;
-			
-			if (xid == -1 || yid == -1)
-				throw new ParameterException("values required for parameters x and y");
-			
-			int i = 0;
-			
-			for (; i < objects.getCapacity(); i++) {
-				ObjectWithDescriptor<Integer, Descriptor> obj = objects.get(i);
-				
-				if (obj.getObject().equals(xid)) {
-					x = obj.getDescriptor();
-					break;
-				}
-			}
-			
-			for (; i < objects.getCapacity(); i++) {
-				ObjectWithDescriptor<Integer, Descriptor> obj = objects.get(i);
-				
-				if (obj.getObject().equals(yid)) {
-					y = obj.getDescriptor();
-					break;
-				}
-			}
-			
-			if (x == null)
-				throw new ParameterException("x not found");
-			
-			if (y == null)
-				throw new ParameterException("y not found");
+			DescriptorFile objects = loader.load(path);
+			Metric metric = metrics.getMetric(objects.getHeader());
+
+			Descriptor x = objects.get(parameters.getInt("x"));
+			Descriptor y = objects.get(parameters.getInt("y"));
 			
 			System.out.printf("Distance: %.3f\n", metric.getDistance(x, y));
 		}

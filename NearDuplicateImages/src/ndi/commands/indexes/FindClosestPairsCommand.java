@@ -9,11 +9,8 @@ import java.util.Set;
 
 import metricspaces.PairDistance;
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
-import metricspaces.indexes.PivotedList;
 import metricspaces.indexes.SearchResult;
 import ndi.files.IndexFileLoader;
 import ndi.files.PairDistanceWriter;
@@ -40,41 +37,35 @@ public class FindClosestPairsCommand implements Command {
 		
 		try {
 			//get the parameters
-			Index<Integer, Descriptor> _index = indexLoader.load(parameters.require("index"), progress);
-			DescriptorFile<Integer, Descriptor> objects = _index.getObjects();
+			Index index = indexLoader.load(parameters.require("index"), progress);
+			DescriptorFile objects = index.getObjects();
 			double initialRadius = parameters.getDouble("initialRadius");
 			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
 			int numberOfPairs = parameters.getInt("pairs", 5000);
 			
-			//require the index to be a pivoted list so we can make some time savings
-			if (!(_index instanceof PivotedList))
-				throw new ParameterException("Index must be a pivoted list index.");
-			
-			PivotedList<Integer, Descriptor> index = (PivotedList<Integer, Descriptor>)_index;
-			
 			//make a list of query indices - initially starts with all of them
 			Set<Integer> queries = new HashSet<>();
 			List<Integer> toRemove = new ArrayList<>();
-			for (int i = 0; i < objects.getCapacity(); i++) queries.add(i);
+			for (int i = 0; i < index.getHeader().getCapacity(); i++) queries.add(i);
 			
-			List<PairDistance<Integer>> results = new ArrayList<>();
+			List<PairDistance> results = new ArrayList<>();
 			double radius = initialRadius;
 			
 			//keep looping until the required number of pairs have been retrieved
 			while (results.size() < numberOfPairs) {
 				//search for each of the remaining queries
 				for (Integer i: queries) {
-					ObjectWithDescriptor<Integer, Descriptor> query = objects.get(i);
-					double[] queryList = index.getDistanceList(i);
-					SearchResult<Integer> result = index.findNearestNeighbour(query.getDescriptor(), queryList, i, radius);
+					List<SearchResult> r = index.search(i, radius);
+					Collections.sort(r);
 					
+					//TODO
 					//we've got a nearest neighbour - add it to the list
 					//and schedule the two parts of the pair for deletion
-					if (result != null) {
-						results.add(new PairDistance<Integer>(query.getObject(), result.getResult(), result.getDistance()));
-						toRemove.add(i);
-						toRemove.add(result.getResultIndex());
-					}
+//					if (result != null) {
+//						results.add(new PairDistance(query.getObject(), result.getResult(), result.getDistance()));
+//						toRemove.add(i);
+//						toRemove.add(result.getResultIndex());
+//					}
 				}
 				
 				queries.removeAll(toRemove);
@@ -84,7 +75,7 @@ public class FindClosestPairsCommand implements Command {
 			
 			index.close();
 			
-			List<PairDistance<Integer>> list = new ArrayList<>(results);
+			List<PairDistance> list = new ArrayList<>(results);
 			Collections.sort(list);
 			
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));

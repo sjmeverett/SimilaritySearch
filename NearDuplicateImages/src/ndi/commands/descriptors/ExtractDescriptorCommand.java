@@ -5,11 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import ndi.MirFlickrUrl;
 import ndi.extractors.DescriptorExtractor;
@@ -17,7 +15,6 @@ import ndi.extractors.mpeg7.colour.ColourStructureExtractor;
 import ndi.extractors.mpeg7.texture.EdgeHistogramExtractor;
 import ndi.extractors.pdna.PdnaExtractor;
 import ndi.files.DescriptorFileLoader;
-import ndi.files.IdFileReader;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -48,11 +45,7 @@ public class ExtractDescriptorCommand implements Command {
 		
 		try {
 			String outputPath = parameters.require("output");
-			String idsPath = parameters.require("ids");
 			File imageDirectory = new File(parameters.require("imagedir"));
-			
-			IdFileReader reader = new IdFileReader(idsPath);
-			Set<Integer> ids = reader.read();
 			
 			String descriptorName = parameters.require("descriptor");
 			DescriptorExtractor extractor = descriptors.get(descriptorName);
@@ -60,16 +53,15 @@ public class ExtractDescriptorCommand implements Command {
 			if (extractor == null)
 				throw new ParameterException("Unrecognised descriptor name.");
 			
-			DescriptorFile<Integer, Descriptor> descriptors = descriptorLoader.create(outputPath, ids.size(),
+			DescriptorFile descriptors = descriptorLoader.create(outputPath, 1000000,
 					extractor.getDimensions(), descriptorName);
 			
-			progress.setOperation("Extracting", ids.size());
+			progress.setOperation("Extracting", 1000000);
 			
-			for (Integer id: ids) {
-				BufferedImage image = new MirFlickrUrl(id, imageDirectory).openImage();
+			for (int i = 0; i < 1000000; i++) {
+				BufferedImage image = new MirFlickrUrl(i, imageDirectory).openImage();
 				Descriptor descriptor = extractor.extract(image);
-				ObjectWithDescriptor<Integer, Descriptor> object = new ObjectWithDescriptor<>(id, descriptor);
-				descriptors.put(object);
+				descriptors.put(descriptor);
 				
 				progress.incrementDone();
 			}
@@ -92,7 +84,6 @@ public class ExtractDescriptorCommand implements Command {
 	public String describe() {
 		parameters.describe("descriptor", "The name of the descriptor to extract " + descriptors.keySet().toString() + ".");
 		parameters.describe("output", "The path to the descriptor file to be created.");
-		parameters.describe("ids", "The path to the file continaing the image IDs to generate descriptors for.");
 		parameters.describe("imagedir", "The path to the directory containing the images.");
 		
 		descriptorLoader.describe();

@@ -2,9 +2,9 @@ package ndi.files;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 public class IdFileReader {
 	private Scanner scanner;
@@ -13,8 +13,8 @@ public class IdFileReader {
 		scanner = new Scanner(new File(path));
 	}
 	
-	public Set<Integer> read() {
-		Set<Integer> ids = new HashSet<Integer>();
+	public List<Integer> read() {
+		List<Integer> ids = new ArrayList<Integer>();
 		
 		while (scanner.hasNextInt()) {
 			ids.add(scanner.nextInt());

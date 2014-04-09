@@ -16,8 +16,8 @@ import metricspaces.indexes.SearchResult;
  *
  * @param <ObjectType> The type of objects in the pair.
  */
-public class PairDistance<ObjectType extends Comparable<ObjectType>> implements Comparable<PairDistance<ObjectType>> {
-	private ObjectType object1, object2;
+public class PairDistance implements Comparable<PairDistance> {
+	private int object1, object2;
 	private double distance;
 	
 	
@@ -27,8 +27,8 @@ public class PairDistance<ObjectType extends Comparable<ObjectType>> implements 
 	 * @param y
 	 * @param distance
 	 */
-	public PairDistance(ObjectType x, ObjectType y, double distance) {
-		if (x.compareTo(y) < 0) {
+	public PairDistance(int x, int y, double distance) {
+		if (x < y) {
 			object1 = x;
 			object2 = y;
 		}
@@ -46,17 +46,17 @@ public class PairDistance<ObjectType extends Comparable<ObjectType>> implements 
 	 * @param query
 	 * @param result
 	 */
-	public PairDistance(ObjectType query, SearchResult<ObjectType> result) {
+	public PairDistance(int query, SearchResult result) {
 		this(query, result.getResult(), result.getDistance());
 	}
 	
 	
-	public ObjectType getObject1() {
+	public int getObject1() {
 		return object1;
 	}
 	
 	
-	public ObjectType getObject2() {
+	public int getObject2() {
 		return object2;
 	}
 	
@@ -67,7 +67,7 @@ public class PairDistance<ObjectType extends Comparable<ObjectType>> implements 
 	
 	
 	@Override
-	public int compareTo(PairDistance<ObjectType> o) {
+	public int compareTo(PairDistance o) {
 		return Double.compare(distance, o.distance);
 	}
 	
@@ -76,7 +76,7 @@ public class PairDistance<ObjectType extends Comparable<ObjectType>> implements 
 	public boolean equals(Object o) {
 		if (o instanceof PairDistance) {
 			PairDistance p = (PairDistance)o;
-			return object1.equals(p.object1) && object2.equals(p.object2);
+			return object1 == p.object1 && object2 == p.object2;
 		}
 		else {
 			return super.equals(o);

@@ -34,8 +34,8 @@ public class TimeMetricCommand implements Command {
 		
 		try {
 			String path = parameters.require("descriptors");
-			DescriptorFile<Integer, Descriptor> objects = loader.load(path);
-			Metric<Descriptor> metric = metrics.getMetric(objects.getHeader());
+			DescriptorFile objects = loader.load(path);
+			Metric metric = metrics.getMetric(objects.getHeader());
 			
 			int count = parameters.getInt("count", 1000);
 			int n = objects.getCapacity() - 1;
@@ -44,8 +44,8 @@ public class TimeMetricCommand implements Command {
 			long time = System.currentTimeMillis();
 			
 			for (int i = 0; i < count; i++) {
-				Descriptor x = objects.get(RandomHelper.getNextInt(0, n)).getDescriptor();
-				Descriptor y = objects.get(RandomHelper.getNextInt(0, n)).getDescriptor();
+				Descriptor x = objects.get(RandomHelper.getNextInt(0, n));
+				Descriptor y = objects.get(RandomHelper.getNextInt(0, n));
 				metric.getDistance(x, y);
 				progress.incrementDone();
 			}

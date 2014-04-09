@@ -2,7 +2,7 @@ package metricspaces.metrics;
 
 import metricspaces.descriptors.Descriptor;
 
-public class CosineAngularMetric implements Metric<Descriptor> {
+public class CosineAngularMetric implements Metric {
 	@Override
     public double getDistance(Descriptor x, Descriptor y) {
         double[] xdata = x.getData();

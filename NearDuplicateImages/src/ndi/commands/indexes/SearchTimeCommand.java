@@ -3,10 +3,7 @@ package ndi.commands.indexes;
 import java.io.IOException;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
-import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
-import metricspaces.indexes.PivotedList;
 import ndi.files.IndexFileLoader;
 
 import commandline.Command;
@@ -31,8 +28,7 @@ public class SearchTimeCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress,  250);
 		
 		try {
-			Index<Integer, Descriptor> index = indexLoader.load(parameters.require("index"), progress);
-			DescriptorFile<Integer, Descriptor> objects = index.getObjects();
+			Index index = indexLoader.load(parameters.require("index"), progress);
 			
 			double radius = parameters.getDouble("radius", Double.NaN);
 			int count = parameters.getInt("count", 1000);
@@ -42,23 +38,10 @@ public class SearchTimeCommand implements Command {
 			
 			long time = System.currentTimeMillis();
 			
-			if (index instanceof PivotedList) {
-				PivotedList<Integer, Descriptor> plindex = (PivotedList<Integer, Descriptor>)index;
-				
-				for (int i = 0; i < count; i++) {
-					Descriptor query = objects.get(i).getDescriptor();
-					double[] queryList = plindex.getDistanceList(i);
-					resultCount += plindex.search(query, queryList, radius).size();
-					progress.incrementDone();
-				}
-			}
-			else {
-				for (int i = 0; i < count; i++) {
-	                Descriptor query = objects.get(i).getDescriptor();
-	                resultCount += index.search(query, radius).size();
-	                progress.incrementDone();
-	            }
-			}
+			for (int i = 0; i < count; i++) {
+                resultCount += index.search(i, radius).size();
+                progress.incrementDone();
+            }
 			
 			time = System.currentTimeMillis() - time;
 			

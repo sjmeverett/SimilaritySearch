@@ -2,7 +2,7 @@ package metricspaces.metrics;
 
 import metricspaces.descriptors.Descriptor;
 
-public class ManhattanMetric implements Metric<Descriptor> {
+public class ManhattanMetric implements Metric {
 	@Override
 	public double getDistance(Descriptor x, Descriptor y) {
 		double[] xdata = x.getData();

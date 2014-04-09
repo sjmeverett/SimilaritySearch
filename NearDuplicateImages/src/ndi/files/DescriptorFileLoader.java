@@ -41,7 +41,7 @@ public class DescriptorFileLoader {
 	 * @return
 	 * @throws IOException There was an error reading the descriptor file.
 	 */
-	public DescriptorFile<Integer, Descriptor> load(String path) throws IOException {
+	public DescriptorFile load(String path) throws IOException {
 		DescriptorFileHeader header = new DescriptorFileHeader(path);
 		
 		switch (header.getDescriptorType()) {
@@ -67,7 +67,7 @@ public class DescriptorFileLoader {
 	 * @throws IOException There was an error writing the descriptor file.
 	 * @throws ParameterException The descriptor type is not supported / invalid.
 	 */
-	public DescriptorFile<Integer, Descriptor> create(String path, int capacity, int dimensions, String descriptorName) throws IOException, ParameterException {
+	public DescriptorFile create(String path, int capacity, int dimensions, String descriptorName) throws IOException, ParameterException {
 		String descriptorType = parameters.get("descriptortype");
 		
 		if (descriptorType.equals("byte")) {

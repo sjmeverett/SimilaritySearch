@@ -33,8 +33,8 @@ public class SearchAllCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress,  250);
 		
 		try {
-			Index<Integer, Descriptor> index = indexLoader.load(parameters.require("index"), progress);
-			DescriptorFile<Integer, Descriptor> objects = index.getObjects();
+			Index index = indexLoader.load(parameters.require("index"), progress);
+			DescriptorFile objects = index.getObjects();
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
 			double radius = parameters.getDouble("radius", Double.NaN);
 			
@@ -44,11 +44,11 @@ public class SearchAllCommand implements Command {
 			progress.setOperation("Searching", count);
 			
 			for (int i = 0; i < count; i++) {
-                Descriptor query = objects.get(i).getDescriptor();
+                Descriptor query = objects.get(i);
 
-                List<SearchResult<Integer>> results = index.search(query, radius);
+                List<SearchResult> results = index.search(query, radius);
 
-                for (SearchResult<Integer> result: results) {
+                for (SearchResult result: results) {
                     if (result.getResult() != i) {
                         writer.write(i, result.getResult(), result.getDistance());
                         found++;

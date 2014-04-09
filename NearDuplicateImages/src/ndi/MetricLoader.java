@@ -23,14 +23,14 @@ import commandline.Parameters;
 
 public class MetricLoader {
 	private Parameters parameters;
-	private static Map<String, Metric<Descriptor>> metrics;
+	private static Map<String, Metric> metrics;
 	
 	public MetricLoader(Parameters parameters) {
 		this.parameters = parameters;
 	}
 	
 	private static void loadMetrics() {
-		metrics = new HashMap<String, Metric<Descriptor>>();
+		metrics = new HashMap<String, Metric>();
 		addMetric(new SEDByComplexityMetric());
 		addMetric(new CosineAngularMetric());
 		addMetric(new ManhattanMetric());
@@ -43,20 +43,20 @@ public class MetricLoader {
 		addMetric(new PatternDifference(1));
 	}
 	
-	private static void addMetric(Metric<Descriptor> metric) {
+	private static void addMetric(Metric metric) {
 		metrics.put(metric.getName(), metric);
 	}
 	
-	private static Map<String, Metric<Descriptor>> getMetrics() {
+	private static Map<String, Metric> getMetrics() {
 		if (metrics == null)
 			loadMetrics();
 		
 		return metrics;
 	}
 	
-	public Metric<Descriptor> getMetric(DescriptorFileHeader header) throws ParameterException {
+	public Metric getMetric(DescriptorFileHeader header) throws ParameterException {
 		String metricName = parameters.require("metric");
-		Metric<Descriptor> metric = getMetrics().get(metricName);
+		Metric metric = getMetrics().get(metricName);
 		
 		if (metric == null)
 			throw new ParameterException("Unrecognised metric name.");
@@ -73,7 +73,7 @@ public class MetricLoader {
 		return metric;
 	}
 	
-	public Metric<Descriptor> getMetric(String name) {
+	public Metric getMetric(String name) {
 		return getMetrics().get(name);
 	}
 	

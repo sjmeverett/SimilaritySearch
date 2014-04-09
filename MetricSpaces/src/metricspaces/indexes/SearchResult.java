@@ -10,39 +10,27 @@ package metricspaces.indexes;
  *
  * @author stewart
  */
-public class SearchResult<ObjectType> implements Comparable<SearchResult<ObjectType>> {
-    private ObjectType result;
+public class SearchResult implements Comparable<SearchResult> {
+    private int result;
     private double distance;
-    private int resultIndex;
 
     /**
      * Constructor.
      * @param result The result found from the query.
      * @param distance The distance from the query object to the result object.
-     * @param resultIndex The index of the result in the descriptor file it was retrieved from.
      */
-    public SearchResult(ObjectType result, double distance, int resultIndex) {
+    public SearchResult(int result, double distance) {
         this.result = result;
         this.distance = distance;
-        this.resultIndex = resultIndex;
     }
 
 
     /**
-     * Gets the value of the actual result.
+     * Gets the result key.
      * @return
      */
-    public ObjectType getResult() {
+    public int getResult() {
         return result;
-    }
-    
-    
-    /**
-     * Gets the index of the result in the descriptor file it was retrieved from.
-     * @return
-     */
-    public int getResultIndex() {
-    	return resultIndex;
     }
 
 
@@ -56,7 +44,7 @@ public class SearchResult<ObjectType> implements Comparable<SearchResult<ObjectT
 
 
     @Override
-    public int compareTo(SearchResult<ObjectType> that) {
+    public int compareTo(SearchResult that) {
         return Double.compare(this.distance, that.distance);
     }
     
@@ -64,7 +52,7 @@ public class SearchResult<ObjectType> implements Comparable<SearchResult<ObjectT
     public boolean equals(Object o) {
     	//uh-oh equals is inconsistent with compareTo
     	if (o instanceof SearchResult)
-    		return result.equals(((SearchResult) o).result);
+    		return result == ((SearchResult) o).result;
     	else
     		return super.equals(o);
     }
@@ -72,6 +60,6 @@ public class SearchResult<ObjectType> implements Comparable<SearchResult<ObjectT
 
     @Override
     public String toString() {
-        return String.format("%s (%f)", result.toString(), distance);
+        return String.format("%d (%f)", result, distance);
     }
 }

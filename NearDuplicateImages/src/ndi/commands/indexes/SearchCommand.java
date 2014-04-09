@@ -8,7 +8,6 @@ import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
-import ndi.DescriptorFileIndex;
 import ndi.files.IndexFileLoader;
 
 import commandline.Command;
@@ -33,17 +32,17 @@ public class SearchCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			Index<Integer, Descriptor> index = indexLoader.load(parameters.require("index"), progress);
-			DescriptorFile<Integer, Descriptor> objects = index.getObjects();
-			DescriptorFileIndex descriptorIndex = new DescriptorFileIndex(index.getObjects(), 1000000, progress);
+			Index index = indexLoader.load(parameters.require("index"), progress);
+			DescriptorFile objects = index.getObjects();
 			double radius = parameters.getDouble("radius", Double.NaN);
-			Descriptor query = descriptorIndex.get(parameters.getInt("query", 0));
-			List<SearchResult<Integer>> results = index.search(query, radius);
-			reporter.stop();
 			
+			Descriptor query = objects.get(parameters.getInt("query"));
+			List<SearchResult> results = index.search(query, radius);
+			
+			reporter.stop();
 			System.out.println("Found " + results.size() + " results:");
 			
-			for (SearchResult<Integer> result: results)
+			for (SearchResult result: results)
 				System.out.println(result);
 		}
 		catch (ParameterException | IOException ex) {

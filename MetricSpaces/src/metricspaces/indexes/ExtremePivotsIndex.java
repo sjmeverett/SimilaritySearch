@@ -14,28 +14,24 @@ import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 
 
-public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> implements Index<ObjectType, DescriptorType> {
-	private final Class<DescriptorType> descriptorClass;
+public class ExtremePivotsIndex implements Index {
 	private final IndexFileHeader header;
-	private final DescriptorFile<ObjectType, DescriptorType> objects;
-	private final Metric<DescriptorType> metric;
+	private final DescriptorFile objects;
+	private final Metric metric;
 	private final ByteBuffer buffer;
-	private final int dataOffset, numberOfPivots, numberOfGroups, totalPivots, tableOffset, numberOfObjects, recordSize;
+	private final int dataOffset, capacity, numberOfPivots, numberOfGroups, totalPivots, tableOffset, recordSize;
 	private final double mu;
 	private final Progress progress;
-	private final DescriptorType[] pivots;
+	private final Descriptor[] pivots;
 	private int distanceCalculations;
 	
 	
-	public ExtremePivotsIndex(Class<DescriptorType> descriptorClass, IndexFileHeader header, DescriptorFile<ObjectType, DescriptorType> objects,
-			Metric<DescriptorType> metric, Progress progress) {
-		
-		this.descriptorClass = descriptorClass;
+	public ExtremePivotsIndex(IndexFileHeader header, DescriptorFile objects, Metric metric, Progress progress) {
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
 		this.progress = progress;
-		this.numberOfObjects = objects.getCapacity();
+		capacity = header.getCapacity();
 		
 		buffer = header.getBuffer();
 		numberOfPivots = buffer.getInt();
@@ -44,30 +40,29 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 		mu = buffer.getDouble();
 		dataOffset = buffer.position();
 		tableOffset = dataOffset + totalPivots * 4;
-		recordSize = numberOfGroups * 12;
+		recordSize = numberOfGroups * 12 + 4;
 		
 		pivots = loadPivots();
 	}
 	
 	
-	public ExtremePivotsIndex(Class<DescriptorType> descriptorClass, IndexFileHeader header, DescriptorFile<ObjectType, DescriptorType> objects, Metric<DescriptorType> metric,
+	public ExtremePivotsIndex(IndexFileHeader header, DescriptorFile objects, Metric metric,
 			int numberOfPivots, int numberOfGroups, double mu, Progress progress) throws IOException {
 		
 		if (!header.isWritable())
 			throw new IllegalArgumentException("header must be writable for this constructor");
 		
-		this.descriptorClass = descriptorClass;
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
 		this.progress = progress;
-		this.numberOfObjects = objects.getCapacity();
+		capacity = header.getCapacity();
 		
 		this.numberOfPivots = numberOfPivots;
 		this.numberOfGroups = numberOfGroups;
 		this.mu = mu;
 		totalPivots = numberOfPivots * numberOfGroups;
-		recordSize = numberOfGroups * 12;
+		recordSize = numberOfGroups * 12 + 4;
 		
 		ByteBuffer b = header.getBuffer();
 		b.putInt(numberOfPivots);
@@ -75,7 +70,7 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 		b.putDouble(mu);
 		dataOffset = b.position();
 		tableOffset = dataOffset + totalPivots * 4;
-		header.resize(tableOffset + numberOfObjects * recordSize);
+		header.resize(tableOffset + capacity * recordSize);
 		
 		buffer = header.getBuffer();
 		pivots = initialisePivots();
@@ -83,15 +78,20 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 	
 	
 	@Override
-    public void build() {
+    public void build(List<Integer> keys) {
         if (!header.isWritable())
             throw new IllegalStateException("Cannot build index in read-only mode.");
+        
+        if (keys.size() > capacity)
+        	throw new IllegalArgumentException("keys size is bigger than index capacity");
 
         //build the pivot table
-        progress.setOperation("Building index", numberOfObjects);
+        progress.setOperation("Building index", keys.size());
         buffer.position(tableOffset);
 
-        for (int i = 0; i < numberOfObjects; i++) {
+        for (Integer i: keys) {
+        	buffer.putInt(i);
+        	
             for (int j = 0; j < numberOfGroups; j++) {
                 PivotEntry entry = getPivotWithMaxAlpha(i, j);
                 buffer.putInt(entry.getPivotIndex());
@@ -105,7 +105,7 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 
     private PivotEntry getPivotWithMaxAlpha(int objectIndex, int groupIndex) {
         int index = groupIndex * numberOfPivots;
-        DescriptorType descriptor = objects.get(objectIndex).getDescriptor();
+        Descriptor descriptor = objects.get(objectIndex);
 
         //store details about the first pivot
         int maxPivotIndex = index;
@@ -131,14 +131,13 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
     }
 
     
-    private DescriptorType[] loadPivots() {
-		@SuppressWarnings("unchecked")
-        DescriptorType[] pivots = (DescriptorType[])Array.newInstance(descriptorClass, totalPivots);
+    private Descriptor[] loadPivots() {
+        Descriptor[] pivots = new Descriptor[totalPivots];
         progress.setOperation("Loading pivots", totalPivots);
 
         for (int i = 0; i < totalPivots; i++) {
             int pivotObjectID = buffer.getInt();
-            pivots[i] = objects.get(pivotObjectID).getDescriptor();
+            pivots[i] = objects.get(pivotObjectID);
             progress.incrementDone();
         }
         
@@ -146,14 +145,14 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
     }
     
     
-	private DescriptorType[] initialisePivots() {
-		@SuppressWarnings("unchecked")
-		DescriptorType[] pivots = (DescriptorType[])Array.newInstance(descriptorClass, totalPivots);
+	private Descriptor[] initialisePivots() {
+		Descriptor[] pivots = new Descriptor[totalPivots];
         progress.setOperation("Selecting pivots", totalPivots);
+        int numberOfObjects = objects.getCapacity();
 
         for (int i = 0; i < totalPivots; i++) {
             int pivotObjectID = RandomHelper.getNextInt(0, numberOfObjects - 1);
-            pivots[i] = objects.get(pivotObjectID).getDescriptor();
+            pivots[i] = objects.get(pivotObjectID);
             buffer.putInt(pivotObjectID);
             progress.incrementDone();
         }
@@ -163,23 +162,27 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 
 
     @Override
-    public List<SearchResult<ObjectType>> search(DescriptorType query, double radius) {
-        //first calculate the distance between all the pivots and the query
-        double[] queryTable = buildQueryTable(query);
-
-        //now work through the table finding results
-        List<SearchResult<ObjectType>> results = new ArrayList<SearchResult<ObjectType>>();
+    public List<SearchResult> search(Descriptor query, double radius) {
+        return search(query, buildQueryTable(query), radius);
+    }
+    
+    
+    private List<SearchResult> search(Descriptor query, double[] queryTable, double radius) {
+    	//work through the table finding results
+        List<SearchResult> results = new ArrayList<SearchResult>();
         int position = tableOffset;
         buffer.position(position);
 
-        for (int i = 0; i < numberOfObjects; i++) {
+        for (int i = 0; i < capacity; i++) {
+        	int key = buffer.getInt();
+        	
             if (!checkIfObjectCanBeExcluded(queryTable, radius)) {
                 //we haven't been able to rule the object out, meaning we have to do a distance calculation
-                ObjectWithDescriptor<ObjectType, DescriptorType> object = objects.get(i);
-                double distance = getDistance(query, object.getDescriptor());
+                Descriptor descriptor = objects.get(key);
+                double distance = getDistance(query, descriptor);
 
                 if (distance <= radius)
-                    results.add(new SearchResult<ObjectType>(object.getObject(), distance, i));
+                    results.add(new SearchResult(key, distance));
             }
 
             position += recordSize;
@@ -188,9 +191,37 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 
         return results;
     }
+    
+    
+    @Override
+    public List<SearchResult> search(int position, double radius) {
+    	double[] queryTable = new double[totalPivots];
+    	
+    	buffer.position(tableOffset + position * recordSize);
+    	int key = buffer.getInt();
+    	Descriptor query = objects.get(key);
+    	
+    	//fill out the distances we know already
+    	for (int i = 0; i < numberOfGroups; i++) {
+    		int pivotIndex = buffer.getInt();
+            double distance = buffer.getDouble();
+            queryTable[pivotIndex] = distance;
+    	}
+    	
+    	//fill out the rest
+    	//if m=1, the last step will have filled out all of them already
+    	if (numberOfPivots > 1) {
+	    	for (int i = 0; i < totalPivots; i++) {
+	    		if (queryTable[i] == 0)
+	    			queryTable[i] = getDistance(query, pivots[i]);
+	    	}
+    	}
+    	
+    	return search(query, queryTable, radius);
+    }
 
 
-    private double[] buildQueryTable(DescriptorType query) {
+    private double[] buildQueryTable(Descriptor query) {
         double[] queryTable = new double[totalPivots];
 
         for (int i = 0; i < totalPivots; i++) {
@@ -234,8 +265,14 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 	
 	
 	@Override
-	public DescriptorFile<ObjectType, DescriptorType> getObjects() {
+	public DescriptorFile getObjects() {
 		return objects;
+	}
+
+
+	@Override
+	public IndexFileHeader getHeader() {
+		return header;
 	}
     
 	
@@ -252,7 +289,7 @@ public class ExtremePivotsIndex<ObjectType, DescriptorType extends Descriptor> i
 	}
 	
 	
-    private double getDistance(DescriptorType x, DescriptorType y) {
+    private double getDistance(Descriptor x, Descriptor y) {
     	distanceCalculations++;
     	return metric.getDistance(x, y);
     }

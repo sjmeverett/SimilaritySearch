@@ -2,7 +2,7 @@ package metricspaces.metrics;
 
 import metricspaces.descriptors.Descriptor;
 
-public class EuclidianMetric implements Metric<Descriptor> {
+public class EuclidianMetric implements Metric {
 
 	@Override
 	public double getDistance(Descriptor x, Descriptor y) {

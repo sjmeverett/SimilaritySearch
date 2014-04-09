@@ -6,16 +6,14 @@ import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.ObjectWithDescriptor;
 
 /**
- * Represents an object for reading and writing large binary files containing objects and their descriptors.
+ * A file containing a list of descriptors.
  * @author stewart
- *
- * @param <ObjectType>
- * @param <DescriptorType>
  */
-public interface DescriptorFile<ObjectType, DescriptorType extends Descriptor> {
-	ObjectWithDescriptor<ObjectType, DescriptorType> get();
-	ObjectWithDescriptor<ObjectType, DescriptorType> get(int index);
-    void put(ObjectWithDescriptor<ObjectType, DescriptorType> object);
+public interface DescriptorFile {
+	Descriptor get();
+	Descriptor get(int index);
+	void put(Descriptor descriptor);
+    void put(int index, Descriptor descriptor);
     void position(int index);
     void close() throws IOException;
     int getCapacity();

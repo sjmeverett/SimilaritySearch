@@ -8,7 +8,7 @@ import metricspaces.descriptors.Descriptor;
  *
  * @param <DescriptorType>
  */
-public interface Metric<DescriptorType extends Descriptor> {
-	public double getDistance(DescriptorType x, DescriptorType y);
+public interface Metric {
+	public double getDistance(Descriptor x, Descriptor y);
 	public String getName();
 }

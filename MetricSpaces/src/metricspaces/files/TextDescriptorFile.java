@@ -16,7 +16,7 @@ import metricspaces.descriptors.ObjectWithDescriptor;
  * @author stewart
  *
  */
-public class TextDescriptorFile implements DescriptorFile<Integer, Descriptor> {
+public class TextDescriptorFile implements DescriptorFile {
 	private File descriptorDirectory;
 	private BufferedReader reader;
 	private String filenameTemplate;
@@ -39,7 +39,7 @@ public class TextDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 	
 	
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get() {
+	public Descriptor get() {
 		try {
 			String line = reader.readLine();
 			
@@ -54,11 +54,6 @@ public class TextDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 			}
 			
 			scanner.close();
-			
-			Descriptor descriptor = new DoubleDescriptor(data);
-			ObjectWithDescriptor<Integer, Descriptor> object
-				= new ObjectWithDescriptor<Integer, Descriptor>(currentIndex, descriptor);
-			
 			currentIndex++;
 			
 			if ((currentIndex % 10000) == 0) {
@@ -71,7 +66,7 @@ public class TextDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 				}
 			}
 			
-			return object;
+			return new DoubleDescriptor(data);
 		}
 		catch (IOException e) {
 			return null;
@@ -79,14 +74,20 @@ public class TextDescriptorFile implements DescriptorFile<Integer, Descriptor> {
 	}
 
 	@Override
-	public ObjectWithDescriptor<Integer, Descriptor> get(int index) {
+	public Descriptor get(int index) {
 		position(index);
 		return get();
 	}
 
 	@Override
-	public void put(ObjectWithDescriptor<Integer, Descriptor> object) {
+	public void put(Descriptor descriptor) {
 		throw new UnsupportedOperationException("Writing not supported.");
+	}
+	
+	@Override
+	public void put(int index, Descriptor descriptor) {
+		position(index);
+		put(descriptor);
 	}
 
 	@Override

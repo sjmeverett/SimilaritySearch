@@ -7,7 +7,7 @@ import metricspaces.metrics.Metric;
 /**
  * Base class for quantisation-based metrics.
  */
-public abstract class QuantisationMetric implements Metric<Descriptor> {
+public abstract class QuantisationMetric implements Metric {
 	protected double p, max, mean, stddev;
 	protected double epsilon1, epsilon2;
 

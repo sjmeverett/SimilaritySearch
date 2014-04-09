@@ -8,7 +8,6 @@ import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
-import ndi.DescriptorFileIndex;
 import ndi.ImagePair;
 import ndi.MetricLoader;
 import ndi.files.DescriptorFileLoader;
@@ -40,9 +39,8 @@ public class CalculateDistancesCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile<Integer, Descriptor> objects = loader.load(parameters.require("objects"));
-			DescriptorFileIndex index = new DescriptorFileIndex(objects, 1000000, progress);
-			Metric<Descriptor> metric = metrics.getMetric(objects.getHeader());
+			DescriptorFile objects = loader.load(parameters.require("objects"));
+			Metric metric = metrics.getMetric(objects.getHeader());
 			
 			List<ImagePair> pairs = getImagePairs();
 			int count = Math.min(parameters.getInt("count", Integer.MAX_VALUE), pairs.size());
@@ -51,8 +49,8 @@ public class CalculateDistancesCommand implements Command {
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
 			
 			for (ImagePair pair: pairs) {
-				Descriptor x = index.get(pair.getImage1());
-				Descriptor y = index.get(pair.getImage2());
+				Descriptor x = objects.get(pair.getImage1());
+				Descriptor y = objects.get(pair.getImage2());
 				
 				if (x == null || y == null)
 					continue;
