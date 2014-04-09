@@ -9,7 +9,6 @@ import java.util.Set;
 
 import metricspaces.PairDistance;
 import metricspaces.Progress;
-import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
 import ndi.files.IndexFileLoader;
@@ -38,7 +37,6 @@ public class FindClosestPairsCommand implements Command {
 		try {
 			//get the parameters
 			Index index = indexLoader.load(parameters.require("index"), progress);
-			DescriptorFile objects = index.getObjects();
 			double initialRadius = parameters.getDouble("initialRadius");
 			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
 			int numberOfPairs = parameters.getInt("pairs", 5000);

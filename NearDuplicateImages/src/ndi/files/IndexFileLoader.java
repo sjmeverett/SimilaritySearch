@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.ExtremePivotsIndex;
 import metricspaces.indexes.Index;

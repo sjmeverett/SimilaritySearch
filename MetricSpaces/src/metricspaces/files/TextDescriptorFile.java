@@ -8,7 +8,6 @@ import java.util.Scanner;
 
 import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 
 /**
  * An implementation of the DescriptorFile interface that gets data from 100 text files

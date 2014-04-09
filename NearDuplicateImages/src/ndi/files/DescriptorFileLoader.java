@@ -2,11 +2,11 @@ package ndi.files;
 
 import java.io.IOException;
 
-import metricspaces.descriptors.Descriptor;
 import metricspaces.files.ByteDescriptorFile;
 import metricspaces.files.DescriptorFile;
 import metricspaces.files.DescriptorFileHeader;
 import metricspaces.files.DoubleDescriptorFile;
+
 import commandline.ParameterException;
 import commandline.Parameters;
 

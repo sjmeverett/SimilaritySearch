@@ -3,7 +3,6 @@ package ndi;
 import java.util.HashMap;
 import java.util.Map;
 
-import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFileHeader;
 import metricspaces.metrics.CosineAngularMetric;
 import metricspaces.metrics.EuclidianMetric;

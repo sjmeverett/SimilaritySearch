@@ -3,7 +3,6 @@ package metricspaces.files;
 import java.io.IOException;
 
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 
 /**
  * A file containing a list of descriptors.

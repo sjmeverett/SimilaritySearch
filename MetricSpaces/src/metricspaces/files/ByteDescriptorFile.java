@@ -3,12 +3,9 @@ package metricspaces.files;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import javax.naming.Context;
-
 import metricspaces.descriptors.ByteDescriptor;
 import metricspaces.descriptors.ByteDescriptorContext;
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 
 /**
  * Implements a descriptor file with byte data and integer object IDs.

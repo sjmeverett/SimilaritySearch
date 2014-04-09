@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 
 import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 
 /**
  * Implements a descriptor file with double data and integer object IDs.

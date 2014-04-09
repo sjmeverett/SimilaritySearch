@@ -9,7 +9,6 @@ import java.util.List;
 import metricspaces.ListUtilities;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 

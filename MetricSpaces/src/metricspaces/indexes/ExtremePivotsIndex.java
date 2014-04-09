@@ -1,7 +1,6 @@
 package metricspaces.indexes;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 import metricspaces.Progress;
 import metricspaces.RandomHelper;
 import metricspaces.descriptors.Descriptor;
-import metricspaces.descriptors.ObjectWithDescriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.metrics.Metric;
 

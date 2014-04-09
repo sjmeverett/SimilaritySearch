@@ -89,12 +89,4 @@ public class Mpeg7Colour {
 	public double getValue() {
 		return value;
 	}
-	
-	
-	private double gammaCorrection(double v) {
-		if (v <= 0.0034)
-			return 12.92 * v;
-		else
-			return 1.055 * Math.pow(v, 1.0 / 2.4) - 0.055; 
-	}
 }
