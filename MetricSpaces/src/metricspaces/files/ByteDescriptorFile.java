@@ -8,7 +8,7 @@ import metricspaces.descriptors.ByteDescriptorContext;
 import metricspaces.descriptors.Descriptor;
 
 /**
- * Implements a descriptor file with byte data and integer object IDs.
+ * Implements a descriptor file with byte data.
  * @author stewart
  *
  */

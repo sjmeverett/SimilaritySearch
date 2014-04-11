@@ -7,21 +7,21 @@ import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
 
 /**
- * Implements a descriptor file with double data.
+ * Implements a descriptor file with single (float) data.
  * @author stewart
  *
  */
-public class DoubleDescriptorFile implements DescriptorFile {
+public class SingleDescriptorFile implements DescriptorFile {
 	private DescriptorFileHeader header;
 	private final ByteBuffer buffer;
 	private final int dataOffset, dimensions, capacity, recordSize;
 	
-	public DoubleDescriptorFile(DescriptorFileHeader header) throws IOException {
+	public SingleDescriptorFile(DescriptorFileHeader header) throws IOException {
 		this.header = header;
 		dataOffset = header.getDataOffset();
 		dimensions = header.getDimensions();
 		capacity = header.getCapacity();
-		recordSize = dimensions * 8;
+		recordSize = dimensions * 4;
 		
 		if (header.isWritable()) {
 			header.resize(dataOffset + recordSize * capacity);
@@ -36,7 +36,7 @@ public class DoubleDescriptorFile implements DescriptorFile {
 		double[] data = new double[dimensions];
 		
 		for (int i = 0; i < data.length; i++) {
-			data[i] = buffer.getDouble(); 
+			data[i] = buffer.getFloat(); 
 		}
 		
 		return new DoubleDescriptor(data);
@@ -57,7 +57,7 @@ public class DoubleDescriptorFile implements DescriptorFile {
 		assert(data.length == dimensions);
 		
 		for (int i = 0; i < data.length; i++) {
-			buffer.putDouble(data[i]);
+			buffer.putFloat((float)data[i]);
 		}
 	}
 	

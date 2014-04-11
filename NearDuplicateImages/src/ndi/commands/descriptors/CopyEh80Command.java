@@ -35,9 +35,7 @@ public class CopyEh80Command implements Command {
 			if (!objects.getHeader().getDescriptorName().equals("EhAll"))
 				throw new ParameterException("Descriptor file is not EhAll");
 			
-			DescriptorFile eh80 = loader.create(parameters.require("out"),
-				objects.getCapacity(), 80, "Eh80");
-			
+			DescriptorFile eh80 = loader.create(parameters.require("out"), objects.getCapacity(), 80, "Eh80");
 			progress.setOperation("Copying", objects.getCapacity());
 			
 			for (int i = 0; i < objects.getCapacity(); i++) {

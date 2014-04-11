@@ -6,7 +6,7 @@ import metricspaces.files.ByteDescriptorFile;
 import metricspaces.files.DescriptorFile;
 import metricspaces.files.DescriptorFileHeader;
 import metricspaces.files.DoubleDescriptorFile;
-
+import metricspaces.files.SingleDescriptorFile;
 import commandline.ParameterException;
 import commandline.Parameters;
 
@@ -28,7 +28,7 @@ public class DescriptorFileLoader {
 	
 	public void describe() {
 		//describe the parameters for the help message
-		parameters.describe("descriptortype", "The type of descriptor file to create (byte or double)");
+		parameters.describe("descriptortype", "The type of descriptor file to create (byte, double or single)");
 		parameters.describe("elementmax", "For byte descriptors: the maximum value for any element in the descriptor. "
 				+ "The elements will be scaled by this before being converted to byte. Defaults to 1.");
 		parameters.describe("l1norm", "For byte descriptors: the fixed value that all descriptors sum to, or 0 if "
@@ -50,6 +50,8 @@ public class DescriptorFileLoader {
 			return new ByteDescriptorFile(header);
 		case DescriptorFileHeader.DOUBLE_TYPE:
 			return new DoubleDescriptorFile(header);
+		case DescriptorFileHeader.SINGLE_TYPE:
+			return new SingleDescriptorFile(header);
 		default:
 			throw new UnsupportedOperationException("Descriptor file type not supported.");
 			
@@ -68,7 +70,7 @@ public class DescriptorFileLoader {
 	 * @throws ParameterException The descriptor type is not supported / invalid.
 	 */
 	public DescriptorFile create(String path, int capacity, int dimensions, String descriptorName) throws IOException, ParameterException {
-		String descriptorType = parameters.get("descriptortype");
+		String descriptorType = parameters.require("descriptortype");
 		
 		if (descriptorType.equals("byte")) {
 			double elementMax = parameters.getDouble("elementmax", 1);
@@ -84,6 +86,12 @@ public class DescriptorFileLoader {
 					capacity, dimensions, descriptorName);
 			
 			return new DoubleDescriptorFile(header);
+		}
+		else if (descriptorType.equals("single")) {
+			DescriptorFileHeader header = new DescriptorFileHeader(path, DescriptorFileHeader.SINGLE_TYPE,
+					capacity, dimensions, descriptorName);
+			
+			return new SingleDescriptorFile(header);
 		}
 		else {
 			throw new ParameterException("descriptor type not supported");
