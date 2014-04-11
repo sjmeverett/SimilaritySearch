@@ -161,11 +161,11 @@ public class ExtremePivotsIndex implements Index {
 
     @Override
     public List<SearchResult> search(Descriptor query, double radius) {
-        return search(query, buildQueryTable(query), radius);
+        return search(query, null, buildQueryTable(query), radius);
     }
     
     
-    private List<SearchResult> search(Descriptor query, double[] queryTable, double radius) {
+    private List<SearchResult> search(Descriptor query, Integer queryKey, double[] queryTable, double radius) {
     	//work through the table finding results
         List<SearchResult> results = new ArrayList<SearchResult>();
         int position = tableOffset;
@@ -180,7 +180,7 @@ public class ExtremePivotsIndex implements Index {
                 double distance = getDistance(query, descriptor);
 
                 if (distance <= radius)
-                    results.add(new SearchResult(key, distance));
+                    results.add(new SearchResult(queryKey, key, distance));
             }
 
             position += recordSize;
@@ -194,9 +194,7 @@ public class ExtremePivotsIndex implements Index {
     @Override
     public List<SearchResult> search(int position, double radius) {
     	double[] queryTable = new double[totalPivots];
-    	
-    	buffer.position(tableOffset + position * recordSize);
-    	int key = buffer.getInt();
+    	int key = getKey(position);
     	Descriptor query = objects.get(key);
     	
     	//fill out the distances we know already
@@ -215,7 +213,14 @@ public class ExtremePivotsIndex implements Index {
 	    	}
     	}
     	
-    	return search(query, queryTable, radius);
+    	return search(query, key, queryTable, radius);
+    }
+    
+    
+    @Override
+    public int getKey(int position) {
+    	buffer.position(tableOffset + position * recordSize);
+    	return buffer.getInt();
     }
 
 

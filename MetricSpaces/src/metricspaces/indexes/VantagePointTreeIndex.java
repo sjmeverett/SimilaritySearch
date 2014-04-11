@@ -130,8 +130,7 @@ public class VantagePointTreeIndex implements Index {
 	@Override
 	public List<SearchResult> search(Descriptor query, double radius) {
 		List<SearchResult> results = new ArrayList<SearchResult>();
-		
-        search(0, query, radius, results, Double.NaN);
+        search(0, query, null, radius, results, Double.NaN);
 
         return results;
     }
@@ -139,13 +138,24 @@ public class VantagePointTreeIndex implements Index {
 	
 	@Override
 	public List<SearchResult> search(int position, double radius) {
+		int key = getKey(position);
+		Descriptor query = objects.get(key);
+		
+		List<SearchResult> results = new ArrayList<SearchResult>();
+        search(0, query, key, radius, results, Double.NaN);
+        
+        return results;
+	}
+	
+	
+	@Override
+	public int getKey(int position) {
 		buffer.position(header.getDataOffset() + position * NODE_SIZE + 24);
-		int key = buffer.getInt();
-		return search(objects.get(key), radius);
+		return buffer.getInt();
 	}
 
 
-    private void search(int offset, Descriptor query, double searchRadius, List<SearchResult> results, double parentToQueryDistance) {
+    private void search(int offset, Descriptor query, Integer queryKey, double searchRadius, List<SearchResult> results, double parentToQueryDistance) {
         //move the buffer position to the start of the node
         buffer.position(offset);
 
@@ -165,23 +175,23 @@ public class VantagePointTreeIndex implements Index {
 
             if (distance <= searchRadius) {
                 //this point is within the distance threshold to the query object, so add it to the results
-                results.add(new SearchResult(objectID, distance));
+                results.add(new SearchResult(queryKey, objectID, distance));
             }
 
             if (left != 0 && distance <= nodeRadius + searchRadius) {
                 //points within a distance threshold to the query object could be inside the radius,
                 //so search the left subtree
-                search(left, query, searchRadius, results, distance);
+                search(left, query, queryKey, searchRadius, results, distance);
             }
 
             if (right != 0 && distance >= nodeRadius - searchRadius) {
                 //points within a distance threshold to the query object could be outside the radius,
                 //so search the right subtree
-                search(right, query, searchRadius, results, distance);
+                search(right, query, queryKey, searchRadius, results, distance);
             }
         }
         else if (right != 0) {
-            search(right, query, searchRadius, results, Double.NaN);
+            search(right, query, queryKey, searchRadius, results, Double.NaN);
         }
     }
 

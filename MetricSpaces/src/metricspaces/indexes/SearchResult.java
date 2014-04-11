@@ -11,6 +11,7 @@ package metricspaces.indexes;
  * @author stewart
  */
 public class SearchResult implements Comparable<SearchResult> {
+	private Integer query;
     private int result;
     private double distance;
 
@@ -23,7 +24,28 @@ public class SearchResult implements Comparable<SearchResult> {
         this.result = result;
         this.distance = distance;
     }
+    
+    
+    /**
+     * 
+     * @param query
+     * @param result
+     * @param distance
+     */
+    public SearchResult(Integer query, int result, double distance) {
+    	this(result, distance);
+    	this.query = query;
+    }
+    
 
+    /**
+     * Gets the query key, if it is known; otherwise, null.
+     * @return
+     */
+    public Integer getQuery() {
+    	return query;
+    }
+    
 
     /**
      * Gets the result key.

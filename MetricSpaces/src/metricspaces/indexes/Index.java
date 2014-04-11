@@ -3,6 +3,7 @@ package metricspaces.indexes;
 import java.io.IOException;
 import java.util.List;
 
+import metricspaces.PairDistance;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 
@@ -21,7 +22,10 @@ public interface Index {
 	void build(List<Integer> keys);
 	
 	/**
-	 * Finds all objects within a certain distance to a given query descriptor.
+	 * Finds all objects within a certain distance to a given query descriptor.  Note that the
+	 * query property of the returned SearchResults will be null, as the key is unknown or the
+	 * query was not drawn from the indexed population.
+	 * 
 	 * @param query
 	 * @param radius
 	 * @return
@@ -31,13 +35,21 @@ public interface Index {
 	/**
 	 * Finds all objects within a certain distance to a given item in the index.  This version
 	 * allows possible efficiency savings since the object is known already, depending on the
-	 * implementation.
+	 * implementation.  Implementations should ensure that the query property of the
+	 * SearchResults is set to the key of the object found at the specified radius.
 	 * 
 	 * @param position The object position in the index structure.
 	 * @param radius
 	 * @return
 	 */
 	List<SearchResult> search(int position, double radius);
+	
+	/**
+	 * Gets the key of the object at the specified position in the index.
+	 * @param position
+	 * @return
+	 */
+	int getKey(int position);
 	
 	/**
 	 * Gets the number of distance calculations performed by this index since the last reset.

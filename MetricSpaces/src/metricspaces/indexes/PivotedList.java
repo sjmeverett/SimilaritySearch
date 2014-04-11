@@ -96,30 +96,35 @@ public class PivotedList implements Index {
 
 	@Override
 	public List<SearchResult> search(Descriptor query, double radius) {
-		return search(query, getDistanceList(query), radius);
+		return search(query, null, getDistanceList(query), radius);
 	}
 	
 	
 	@Override
 	public List<SearchResult> search(int position, double radius) {
 		double[] list = new double[numberOfPivots];
-		
-		buffer.position(itemsOffset + itemSize * position);
-		int key = buffer.getInt();
+		int key = getKey(position);
 		
 		for (int i = 0; i < numberOfPivots; i++) {
 			list[i] = buffer.getDouble();
 		}
 		
-		return search(objects.get(key), list, radius);
+		return search(objects.get(key), key, list, radius);
 	}
 	
 	
-	private List<SearchResult> search(Descriptor queryDescriptor, double[] queryList, double radius) {
+	@Override
+	public int getKey(int position) {
+		buffer.position(itemsOffset + itemSize * position);
+		return buffer.getInt();
+	}
+	
+	
+	private List<SearchResult> search(Descriptor queryDescriptor, Integer queryIndex, double[] queryList, double radius) {
 		List<SearchResult> results = new ArrayList<>();
 		
 		for (int i = 0; i < capacity; i++) {
-			SearchResult result = getDistance(queryDescriptor, queryList, i, radius);
+			SearchResult result = getDistance(queryDescriptor, queryIndex, queryList, i, radius);
 			
 			if (result != null) {
 				results.add(result);
@@ -141,7 +146,7 @@ public class PivotedList implements Index {
 	}
 	
 	
-	private SearchResult getDistance(Descriptor queryDescriptor, double[] queryList, int entryIndex, double radius) {
+	private SearchResult getDistance(Descriptor queryDescriptor, Integer queryIndex, double[] queryList, int entryIndex, double radius) {
 		//reading directly from the buffer is much faster than using getDistanceList here...
 		buffer.position(itemsOffset + itemSize * entryIndex);
 		int key = buffer.getInt();
@@ -158,7 +163,7 @@ public class PivotedList implements Index {
         double distance = distance(queryDescriptor, descriptor);
         
         if (distance < radius)
-        	return new SearchResult(key, distance);
+        	return new SearchResult(queryIndex, key, distance);
         else
         	return null;
 	}

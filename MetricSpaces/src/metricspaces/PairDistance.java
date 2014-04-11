@@ -42,12 +42,11 @@ public class PairDistance implements Comparable<PairDistance> {
 	
 	
 	/**
-	 * Create a pair from a query and a search result for that query.
-	 * @param query
+	 * Create a pair from a search result.
 	 * @param result
 	 */
-	public PairDistance(int query, SearchResult result) {
-		this(query, result.getResult(), result.getDistance());
+	public PairDistance(SearchResult result) {
+		this(result.getQuery(), result.getResult(), result.getDistance());
 	}
 	
 	
