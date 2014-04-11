@@ -8,6 +8,7 @@ import ndi.commands.calculations.TimeMetricCommand;
 import ndi.commands.calculations.WriteDistancesCommand;
 import ndi.commands.descriptors.CopyDescriptorsCommand;
 import ndi.commands.descriptors.CopyEh80Command;
+import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.DescriptorInfoCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.SetStatsCommand;
@@ -39,6 +40,7 @@ public class Program {
 		program.addCommand(new SearchCommand());
 		program.addCommand(new CalculateANMRRCommand());
 		program.addCommand(new GetMeanDistanceCommand());
+		program.addCommand(new CopyGistCommand());
 		program.run(args);
 	}
 }
