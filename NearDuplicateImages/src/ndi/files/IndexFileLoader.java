@@ -42,7 +42,6 @@ public class IndexFileLoader {
 		parameters.describe("l", "For extreme pivots: the number of pivot groups to use.");
 		parameters.describe("m", "For extreme pivots / pivoted list: the number of pivots to use.");
 		parameters.describe("mu", "For extreme pivots: the average distance in the metric space.");
-		parameters.describe("capacity", "The capacity of the index.");
 	}
 	
 	
@@ -88,13 +87,12 @@ public class IndexFileLoader {
 	 * @throws IOException There was an error writing the index file.
 	 * @throws ParameterException The index implementation was not recognised, or mu was not specified for EP.
 	 */
-	public Index create(String path, DescriptorFile objects, Metric metric, Progress progress)
+	public Index create(String path, DescriptorFile objects, Metric metric, int capacity, Progress progress)
 			throws IOException, ParameterException {
 		
 		RelativePath r = new RelativePath(objects.getHeader().getPath());
 		String descriptorFile = r.getRelativeTo(path);
 		String indexImplementation = parameters.get("indeximplementation");
-		int capacity = parameters.getInt("capacity");
 		
 		if (indexImplementation.equals("VP")) {
 			IndexFileHeader header = new IndexFileHeader(path, IndexFileHeader.VP_TREE, capacity,

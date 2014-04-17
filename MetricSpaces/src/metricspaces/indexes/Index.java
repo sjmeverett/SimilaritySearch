@@ -3,7 +3,6 @@ package metricspaces.indexes;
 import java.io.IOException;
 import java.util.List;
 
-import metricspaces.PairDistance;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 

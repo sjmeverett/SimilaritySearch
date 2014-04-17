@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import metricspaces.PairDistance;
+import metricspaces.indexes.SearchResult;
 
 /**
  * Writes CSV files which contain image pairs and the distances between them.
@@ -21,7 +22,17 @@ public class PairDistanceWriter {
 
     
     public void write(PairDistance pair) throws IOException {
-    	write(pair.getObject1(), pair.getObject2(), pair.getDistance());
+    	writer.write(String.format("%d,%d,%f\n", pair.getObject1(), pair.getObject2(), pair.getDistance()));
+    }
+    
+    
+    public void write(SearchResult result) throws IOException {
+    	write(new PairDistance(result.getQuery(), result.getResult(), result.getDistance()));
+    }
+    
+    
+    public void write(int image1, int image2, double distance) throws IOException {
+        write(new PairDistance(image1, image2, distance));
     }
     
     
@@ -31,8 +42,9 @@ public class PairDistanceWriter {
     }
     
     
-    public void write(int image1, int image2, double distance) throws IOException {
-        writer.write(String.format("%d,%d,%f\n", image1, image2, distance));
+    public void writeAllResults(Iterable<SearchResult> results) throws IOException {
+    	for (SearchResult result: results)
+    		write(result);
     }
 
 

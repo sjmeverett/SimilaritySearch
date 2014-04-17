@@ -10,10 +10,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
 import metricspaces.files.DescriptorFile;
 import ndi.files.DescriptorFileLoader;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

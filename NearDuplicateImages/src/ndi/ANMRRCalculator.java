@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
-import metricspaces.indexes.ExpandingSearchIterator;
+import metricspaces.indexes.ExpandingSearch;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
 import metricspaces.metrics.Metric;
@@ -45,29 +45,33 @@ public class ANMRRCalculator {
 	 * @return
 	 */
 	public double calculate(Index index, double initialRadius, double increasingFactor) {
-		ExpandingSearchIterator it = new ExpandingSearchIterator(index, initialRadius, increasingFactor, querySets.keySet());
+		ExpandingSearch search = new ExpandingSearch(index, initialRadius, increasingFactor, querySets.keySet());
 		double acc = 0;
 		
 		progress.setOperation("Calculating ANMRR", querySets.size());
 		
 		//the iterator will keep on churning out results until we've removed all the queries
-		while (it.hasNext()) {
-			List<SearchResult> results = it.next();
+		while (search.hasQueries()) {
+			Iterator<List<SearchResult>> it = search.search();
 			
-			if (results.size() == 0)
-				continue;
-			
-			int query = results.get(0).getQuery();
-			Set<Integer> groundTruth = querySets.get(query);
-			
-			int k = Math.min(4 * groundTruth.size(), maxK);
-			double nmrr = calculateNMRR(query, results, groundTruth, k);
-			
-			//were we able to get a result?
-			if (!Double.isNaN(nmrr)) {
-				acc += nmrr;
-				it.remove();
-				progress.incrementDone();
+			while (it.hasNext()) {
+				List<SearchResult> results = it.next();
+				
+				if (results.size() == 0)
+					continue;
+				
+				int query = results.get(0).getQuery();
+				Set<Integer> groundTruth = querySets.get(query);
+				
+				int k = Math.min(4 * groundTruth.size(), maxK);
+				double nmrr = calculateNMRR(query, results, groundTruth, k);
+				
+				//were we able to get a result?
+				if (!Double.isNaN(nmrr)) {
+					acc += nmrr;
+					it.remove();
+					progress.incrementDone();
+				}
 			}
 		}
 		
@@ -92,9 +96,11 @@ public class ANMRRCalculator {
 		for (Map.Entry<Integer, Set<Integer>> querySet: querySets.entrySet()) {
 			int query = querySet.getKey();
 			Set<Integer> groundTruth = querySet.getValue();
-			
 			int k = Math.min(4 * groundTruth.size(), maxK);
+			
+			//search for the k nearest items, exhaustively
 			Collection<SearchResult> results = search(objects, metric, query, k);
+			
 			acc += calculateNMRR(query, results, groundTruth, k);
 			progress.incrementDone();
 		}

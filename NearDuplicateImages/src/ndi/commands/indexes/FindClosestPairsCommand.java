@@ -4,16 +4,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import metricspaces.PairDistance;
 import metricspaces.Progress;
+import metricspaces.indexes.ExpandingSearch;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
+import ndi.FixedSizePriorityQueue;
 import ndi.files.IndexFileLoader;
 import ndi.files.PairDistanceWriter;
-
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -41,47 +44,43 @@ public class FindClosestPairsCommand implements Command {
 			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
 			int numberOfPairs = parameters.getInt("pairs", 5000);
 			
-			//make a list of query indices - initially starts with all of them
-			Set<Integer> queries = new HashSet<>();
-			List<Integer> toRemove = new ArrayList<>();
-			for (int i = 0; i < index.getHeader().getCapacity(); i++) queries.add(i);
+			ExpandingSearch search = new ExpandingSearch(index, initialRadius, increasingFactor);
+			Queue<SearchResult> pairs = new FixedSizePriorityQueue<SearchResult>(numberOfPairs, null);
 			
-			List<PairDistance> results = new ArrayList<>();
-			double radius = initialRadius;
+			progress.setOperation("Finding pairs", numberOfPairs);
 			
-			//keep looping until the required number of pairs have been retrieved
-			while (results.size() < numberOfPairs) {
-				//search for each of the remaining queries
-				for (Integer i: queries) {
-					List<SearchResult> r = index.search(i, radius);
-					Collections.sort(r);
-					
-					//TODO
-					//we've got a nearest neighbour - add it to the list
-					//and schedule the two parts of the pair for deletion
-//					if (result != null) {
-//						results.add(new PairDistance(query.getObject(), result.getResult(), result.getDistance()));
-//						toRemove.add(i);
-//						toRemove.add(result.getResultIndex());
-//					}
-				}
+			while (search.hasQueries() && pairs.size() < numberOfPairs) {
+				Iterator<List<SearchResult>> it = search.search();
 				
-				queries.removeAll(toRemove);
-				toRemove.clear();
-				radius *= increasingFactor;
+				while(it.hasNext()) { 
+					List<SearchResult> results = it.next();
+					Collections.sort(results);
+					
+					//make sure we have some results
+					if (results.size() == 0) continue;
+					SearchResult result = results.get(0);
+					
+					//skip the result containing the query itself
+					if (result.getQuery() == result.getResult()) {
+						if (results.size() == 1) continue;
+						result = results.get(1);
+					}
+					
+					//add to results
+					pairs.add(result);
+					it.remove();
+					progress.incrementDone();
+				}
 			}
 			
 			index.close();
 			
-			List<PairDistance> list = new ArrayList<>(results);
-			Collections.sort(list);
-			
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
-			writer.writeAll(list);
+			writer.writeAllResults(pairs);
 			writer.close();
 			
             reporter.stop();
-            System.out.printf("Found %d pairs.\n", list.size());
+            System.out.printf("Found %d pairs.\n", pairs.size());
 		}
 		catch (ParameterException | IOException ex) {
 			reporter.stop();

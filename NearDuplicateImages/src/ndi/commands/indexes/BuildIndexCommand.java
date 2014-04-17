@@ -45,7 +45,7 @@ public class BuildIndexCommand implements Command {
 			
 			DescriptorFile objects = descriptorLoader.load(descriptorPath);
 			Metric metric = metricLoader.getMetric(objects.getHeader());
-			Index index = indexLoader.create(indexPath, objects, metric, progress);
+			Index index = indexLoader.create(indexPath, objects, metric, ids.size(), progress);
 			
 			index.build(ids);
 			index.close();

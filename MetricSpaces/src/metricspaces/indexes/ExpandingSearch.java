@@ -16,12 +16,11 @@ import java.util.NoSuchElementException;
  * @author stewart
  *
  */
-public class ExpandingSearchIterator implements Iterator<List<SearchResult>> {
+public class ExpandingSearch {
 	private final Index index;
 	private final double increasingFactor;
 	private final List<Integer> queries;
 	private double radius;
-	private Iterator<Integer> queryIterator;
 	
 	
 	/**
@@ -30,7 +29,7 @@ public class ExpandingSearchIterator implements Iterator<List<SearchResult>> {
 	 * @param initialRadius The initial search radius.
 	 * @param increasingFactor The amount to increase the radius each iteration (e.g. 1.1 for 10%).
 	 */
-	public ExpandingSearchIterator(Index index, double initialRadius, double increasingFactor) {
+	public ExpandingSearch(Index index, double initialRadius, double increasingFactor) {
 		this.index = index;
 		this.increasingFactor = increasingFactor;
 		
@@ -41,7 +40,6 @@ public class ExpandingSearchIterator implements Iterator<List<SearchResult>> {
 		for (int i = 0; i < count; i++)
 			queries.add(i);
 		
-		queryIterator = queries.iterator();
 		radius = initialRadius;
 	}
 	
@@ -55,7 +53,7 @@ public class ExpandingSearchIterator implements Iterator<List<SearchResult>> {
 	 * @param increasingFactor
 	 * @param keys
 	 */
-	public ExpandingSearchIterator(Index index, double initialRadius, double increasingFactor, Collection<Integer> keys) {
+	public ExpandingSearch(Index index, double initialRadius, double increasingFactor, Collection<Integer> keys) {
 		this.index = index;
 		this.increasingFactor = increasingFactor;
 		
@@ -70,39 +68,46 @@ public class ExpandingSearchIterator implements Iterator<List<SearchResult>> {
 				queries.add(i);
 		}
 		
-		queryIterator = queries.iterator();
 		radius = initialRadius;
 	}
 
 	
-	@Override
-	public boolean hasNext() {
-		//keep producing results until we've ran out of queries
+	public Iterator<List<SearchResult>> search() {
+		final double currentRadius = radius;
+		
+		Iterator<List<SearchResult>> it = new Iterator<List<SearchResult>>() {
+			Iterator<Integer> queryIterator = queries.iterator();
+			
+			@Override
+			public boolean hasNext() {
+				return queryIterator.hasNext();
+			}
+
+			
+			@Override
+			public List<SearchResult> next() {
+				if (!hasNext())
+					throw new NoSuchElementException();
+				
+				//return the search results for the next query
+				return index.search(queryIterator.next(), currentRadius);
+			}
+
+			
+			@Override
+			public void remove() {
+				//the caller is satisfied with the results from the last search
+				//so remove the query
+				queryIterator.remove();
+			}
+		};
+		
+		radius *= increasingFactor;
+		return it;
+	}
+	
+	
+	public boolean hasQueries() {
 		return queries.size() > 0;
-	}
-
-	
-	@Override
-	public List<SearchResult> next() {
-		if (!hasNext())
-			throw new NoSuchElementException();
-		
-		//if we've gotten to the end of the query list, increase the radius
-		//and start again
-		if (!queryIterator.hasNext()) {
-			radius *= increasingFactor;
-			queryIterator = queries.iterator();
-		}
-		
-		//return the search results for the next query
-		return index.search(queryIterator.next(), radius);
-	}
-
-	
-	@Override
-	public void remove() {
-		//the caller is satisfied with the results from the last search
-		//so remove the query
-		queryIterator.remove();
 	}
 }
