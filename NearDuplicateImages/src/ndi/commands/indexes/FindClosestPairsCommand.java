@@ -45,7 +45,7 @@ public class FindClosestPairsCommand implements Command {
 			int numberOfPairs = parameters.getInt("pairs", 5000);
 			
 			ExpandingSearch search = new ExpandingSearch(index, initialRadius, increasingFactor);
-			Queue<SearchResult> pairs = new FixedSizePriorityQueue<SearchResult>(numberOfPairs, null);
+			Queue<SearchResult> pairs = new FixedSizePriorityQueue<SearchResult>(numberOfPairs);
 			
 			progress.setOperation("Finding pairs", numberOfPairs);
 			

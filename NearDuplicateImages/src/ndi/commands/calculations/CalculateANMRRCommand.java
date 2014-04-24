@@ -38,38 +38,57 @@ public class CalculateANMRRCommand implements Command {
 	@Override
 	public void run() {
 		Progress progress = new Progress();
-		ProgressReporter reporter = new ProgressReporter(progress, 250);
+		//ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
 			//load the clusters
 			ClusterReader reader = new ClusterReader(parameters.require("input"), false);
 			List<Set<Integer>> clusters = new ArrayList<>(reader.read().values());
 			
-			if (parameters.get("max") != null) {
-				clusters = clusters.subList(0, parameters.getInt("max"));
+//			if (parameters.get("max") != null) {
+//				clusters = clusters.subList(0, parameters.getInt("max"));
+//			}
+//			
+//			ANMRRCalculator calculator = new ANMRRCalculator(clusters, progress);
+//			double anmrr = 0;
+//			
+//			if (parameters.get("index") != null) {
+//				Index index = indexLoader.load(parameters.require("index"), progress);
+//				double initialRadius = parameters.getDouble("initialRadius");
+//				double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
+//				anmrr = calculator.calculate(index, initialRadius, increasingFactor);
+//			}
+//			else {
+//				DescriptorFile objects = descriptorLoader.load(parameters.require("objects"));
+//				Metric metric = metricLoader.getMetric(objects.getHeader());
+//				anmrr = calculator.calculate(objects, metric);
+//			}
+			
+			Index index = indexLoader.load(parameters.require("index"), progress);
+			double initialRadius = parameters.getDouble("initialRadius");
+			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
+			Metric metric = metricLoader.getMetric(index.getHeader().getMetricName());
+			DescriptorFile objects = index.getObjects();
+			
+			for (int i = 0; i < clusters.size(); i++) {
+				List<Set<Integer>> list = new ArrayList<>();
+				list.add(clusters.get(i));
+				ANMRRCalculator calculator = new ANMRRCalculator(list, progress);
+				double a1 = calculator.calculate(objects, metric);
+				double a2 = calculator.calculate(index, initialRadius, increasingFactor);
+				
+				if (Math.abs(a1 - a2) > 1e-6) {
+					System.out.println(i);
+					break;
+				}
 			}
 			
-			ANMRRCalculator calculator = new ANMRRCalculator(clusters, progress);
-			double anmrr = 0;
+			//reporter.stop();
 			
-			if (parameters.get("index") != null) {
-				Index index = indexLoader.load(parameters.require("index"), progress);
-				double initialRadius = parameters.getDouble("initialRadius");
-				double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
-				anmrr = calculator.calculate(index, initialRadius, increasingFactor);
-			}
-			else {
-				DescriptorFile objects = descriptorLoader.load(parameters.require("objects"));
-				Metric metric = metricLoader.getMetric(objects.getHeader());
-				anmrr = calculator.calculate(objects, metric);
-			}
-			
-			reporter.stop();
-			
-			System.out.printf("ANMRR: %f\n", anmrr);
+			//System.out.printf("ANMRR: %f\n", anmrr);
 		}
 		catch (ParameterException | IOException | FileFormatException e) {
-			reporter.stop();
+			//reporter.stop();
 			System.out.println(e.getMessage());
 		}
 	}

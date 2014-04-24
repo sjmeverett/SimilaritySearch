@@ -23,6 +23,10 @@ public class ProgressReporter implements Runnable {
 
     @Override
     public void run() {
+    	//don't bother if in eclipse
+    	if (System.console() == null)
+    		return;
+    	
         try {
             String op = "";
 
@@ -32,14 +36,19 @@ public class ProgressReporter implements Runnable {
                         System.out.printf("100%%\n%s: ", progress.getOperation());
                     }
                     else {
-                        System.out.printf("%s: ", progress.getOperation());
+                        System.out.printf("\n%s: ", progress.getOperation());
                     }
 
                     op = progress.getOperation();
                 }
 
-                System.out.printf("%3.0f%%\b\b\b\b", progress.getFractionDone() * 100);
-
+                if (Double.isNaN(progress.getFractionDone())) {
+                	System.out.printf("\rInitialising...");
+                }
+                else {
+                	System.out.printf("%3.0f%%\b\b\b\b", progress.getFractionDone() * 100);
+                }
+                
                 Thread.sleep(interval);
             }
         }

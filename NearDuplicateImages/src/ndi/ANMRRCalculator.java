@@ -50,7 +50,6 @@ public class ANMRRCalculator {
 		
 		progress.setOperation("Calculating ANMRR", querySets.size());
 		
-		//the iterator will keep on churning out results until we've removed all the queries
 		while (search.hasQueries()) {
 			Iterator<List<SearchResult>> it = search.search();
 			
@@ -111,7 +110,7 @@ public class ANMRRCalculator {
 	
 	private Collection<SearchResult> search(DescriptorFile objects, Metric metric, int query, int k) {
 		//don't care about anything past k results
-		Queue<SearchResult> results = new FixedSizePriorityQueue<>(k, null);
+		Queue<SearchResult> results = new FixedSizePriorityQueue<>(k);
 		Descriptor queryDescriptor = objects.get(query);
 		
 		//calculate the distance between the query and all the rest of the items
@@ -152,10 +151,7 @@ public class ANMRRCalculator {
 		if (rank > k) {
 			//we got enough results
 			//add 1.25k as a max value for any of the ground truth items past rank k
-			while (it.hasNext()) {
-				it.next();
-				acc += 1.25 * k;
-			}
+			acc += 1.25 * k * groundTruth.size();
 		} else if (groundTruth.size() > 0) {
 			//we didn't get k results back, and we didn't find all the ground truth
 			//we'll need to search for this one again
