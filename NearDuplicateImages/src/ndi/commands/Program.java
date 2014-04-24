@@ -11,6 +11,7 @@ import ndi.commands.descriptors.CopyEh80Command;
 import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.DescriptorInfoCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
+import ndi.commands.descriptors.RandomDescriptorCommand;
 import ndi.commands.descriptors.SetStatsCommand;
 import ndi.commands.indexes.BuildIndexCommand;
 import ndi.commands.indexes.FindClosestPairsCommand;
@@ -18,6 +19,7 @@ import ndi.commands.indexes.IndexInfoCommand;
 import ndi.commands.indexes.SearchAllCommand;
 import ndi.commands.indexes.SearchCommand;
 import ndi.commands.indexes.SearchTimeCommand;
+
 import commandline.CommandLineProgram;
 
 public class Program {
@@ -41,6 +43,7 @@ public class Program {
 		program.addCommand(new CalculateANMRRCommand());
 		program.addCommand(new GetMeanDistanceCommand());
 		program.addCommand(new CopyGistCommand());
+		program.addCommand(new RandomDescriptorCommand());
 		program.run(args);
 	}
 }
