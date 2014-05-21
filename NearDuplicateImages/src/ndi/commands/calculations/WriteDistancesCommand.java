@@ -7,9 +7,9 @@ import java.io.IOException;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
-import ndi.files.DescriptorFileLoader;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -18,13 +18,11 @@ import commandline.ProgressReporter;
 
 public class WriteDistancesCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
 	private MetricLoader metrics;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
 		metrics = new MetricLoader(parameters);
 	}
 
@@ -34,7 +32,7 @@ public class WriteDistancesCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = loader.load(parameters.require("objects"));
+			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("objects"));
 			Metric metric = metrics.getMetric(objects.getHeader());
 			int count = parameters.getInt("count", 1000);
 			
@@ -74,7 +72,7 @@ public class WriteDistancesCommand implements Command {
 	@Override
 	public String describe() {
 		parameters.describe("objects", "The path to the descriptor file.");
-		parameters.describe("count", "The number of objects to calculate the distance among.");
+		parameters.describe("count", "The number of objects to calculate the distance among (default 1000).");
 		parameters.describe("output", "The path to the file to output the distances to.");
 		metrics.describe();
 		return "Calculates the distance between all the pairs in a specified number of objects and writes "

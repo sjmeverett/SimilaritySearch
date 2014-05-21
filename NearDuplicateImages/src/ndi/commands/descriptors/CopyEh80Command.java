@@ -7,7 +7,8 @@ import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
 import metricspaces.files.DescriptorFile;
-import ndi.files.DescriptorFileLoader;
+import metricspaces.files.DescriptorFileHeader;
+import ndi.files.DescriptorFileCreator;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -16,12 +17,12 @@ import commandline.ProgressReporter;
 
 public class CopyEh80Command implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
+	private DescriptorFileCreator creator;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
+		creator = new DescriptorFileCreator(parameters);
 	}
 
 	@Override
@@ -30,12 +31,12 @@ public class CopyEh80Command implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = loader.load(parameters.require("ehall"));
+			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("ehall"));
 			
 			if (!objects.getHeader().getDescriptorName().equals("EhAll"))
 				throw new ParameterException("Descriptor file is not EhAll");
 			
-			DescriptorFile eh80 = loader.create(parameters.require("out"), objects.getCapacity(), 80, "Eh80");
+			DescriptorFile eh80 = creator.create(parameters.require("out"), objects.getCapacity(), 80, "Eh80");
 			progress.setOperation("Copying", objects.getCapacity());
 			
 			for (int i = 0; i < objects.getCapacity(); i++) {
@@ -66,7 +67,7 @@ public class CopyEh80Command implements Command {
 	public String describe() {
 		parameters.describe("ehall", "The EhAll file to copy descriptors from.");
 		parameters.describe("out", "The path of the Eh80 file to create.");
-		loader.describe();
+		creator.describe();
 		return "Creates an Eh80 descriptor file by copying descriptors from an EhAll file."; 
 	}
 

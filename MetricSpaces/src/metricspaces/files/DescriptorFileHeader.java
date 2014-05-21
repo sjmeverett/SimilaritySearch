@@ -2,6 +2,8 @@ package metricspaces.files;
 
 import java.io.IOException;
 
+import metricspaces.RelativePath;
+
 public class DescriptorFileHeader extends LargeBinaryFile {
     private byte descriptorType;
     private int dimensions, capacity, statsOffset, dataOffset;
@@ -12,6 +14,7 @@ public class DescriptorFileHeader extends LargeBinaryFile {
     public static final byte DOUBLE_TYPE = 0;
     public static final byte BYTE_TYPE = 1;
     public static final byte SINGLE_TYPE = 2;
+    public static final byte RELATIVE_TYPE = 3;
     
     
 	public DescriptorFileHeader(String path) throws IOException {
@@ -94,5 +97,31 @@ public class DescriptorFileHeader extends LargeBinaryFile {
 	
 	public double getElementMax() {
 		return elementMax;
+	}
+	
+	
+	public static DescriptorFile open(String path) throws IOException {
+		DescriptorFileHeader header = new DescriptorFileHeader(path);
+		
+		switch (header.getDescriptorType()) {
+		
+		case BYTE_TYPE:
+			return new ByteDescriptorFile(header);
+		case DOUBLE_TYPE:
+			return new DoubleDescriptorFile(header);
+		case SINGLE_TYPE:
+			return new SingleDescriptorFile(header);
+		case RELATIVE_TYPE:
+			return new RelativeDescriptorFile(header);
+		default:
+			throw new UnsupportedOperationException("Descriptor file type not supported.");
+			
+		}
+	}
+	
+	
+	public static DescriptorFile open(String path, String relativeTo) throws IOException {
+		RelativePath r = new RelativePath(path);
+		return open(r.getRelativeTo(relativeTo));
 	}
 }

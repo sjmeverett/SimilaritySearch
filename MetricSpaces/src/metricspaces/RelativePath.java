@@ -1,4 +1,4 @@
-package ndi;
+package metricspaces;
 
 import java.io.File;
 

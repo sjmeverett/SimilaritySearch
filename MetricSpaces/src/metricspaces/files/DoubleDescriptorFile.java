@@ -12,23 +12,28 @@ import metricspaces.descriptors.DoubleDescriptor;
  *
  */
 public class DoubleDescriptorFile implements DescriptorFile {
-	private DescriptorFileHeader header;
-	private final ByteBuffer buffer;
-	private final int dataOffset, dimensions, capacity, recordSize;
+	protected final DescriptorFileHeader header;
+	protected ByteBuffer buffer;
+	protected final int dimensions, capacity, recordSize;
+	protected int dataOffset;
 	
-	public DoubleDescriptorFile(DescriptorFileHeader header) throws IOException {
+	protected DoubleDescriptorFile(DescriptorFileHeader header, boolean resize) throws IOException {
 		this.header = header;
 		dataOffset = header.getDataOffset();
 		dimensions = header.getDimensions();
 		capacity = header.getCapacity();
 		recordSize = dimensions * 8;
 		
-		if (header.isWritable()) {
+		if (resize) {
 			header.resize(dataOffset + recordSize * capacity);
 		}
 		
 		buffer = header.getBuffer();
 		buffer.position(dataOffset);
+	}
+	
+	public DoubleDescriptorFile(DescriptorFileHeader header) throws IOException {
+		this(header, header.isWritable());
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
-import ndi.files.IndexFileLoader;
+import ndi.files.IndexFileOpener;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -17,13 +17,13 @@ import commandline.ProgressReporter;
 
 public class SearchCommand implements Command {
 	private Parameters parameters;
-	private IndexFileLoader indexLoader;
+	private IndexFileOpener indexOpener;
 
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		indexLoader = new IndexFileLoader(parameters);
+		indexOpener = new IndexFileOpener(parameters);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class SearchCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			Index index = indexLoader.load(parameters.require("index"), progress);
+			Index index = indexOpener.open(progress);
 			DescriptorFile objects = index.getObjects();
 			double radius = parameters.getDouble("radius", Double.NaN);
 			
@@ -58,10 +58,9 @@ public class SearchCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("index", "The index file.");
 		parameters.describe("radius", "The search radius to use.");
 		parameters.describe("query", "The ID of the image to search for.");
-		
+		indexOpener.describe();
 		return "Searches the given index for the specified image and returns the results.";
 	}
 }

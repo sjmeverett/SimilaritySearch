@@ -3,7 +3,7 @@ package metricspaces.metrics;
 import metricspaces.descriptors.Descriptor;
 
 public class SEDByComplexityMetric implements Metric {
-	public static final double FINAL_POWER = 0.486;
+	public static final double FINAL_POWER = 0.483;
 
 	@Override
 	public double getDistance(Descriptor x, Descriptor y) {

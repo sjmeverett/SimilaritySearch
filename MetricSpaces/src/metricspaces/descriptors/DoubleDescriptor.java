@@ -85,7 +85,7 @@ public class DoubleDescriptor implements Descriptor {
 		double acc = 0;
 		
 		for (int i = 0; i < x.length; i++) {
-			double d = (x[i]+ y[i]) / 2;
+			double d = (x[i] + y[i]) / 2;
 			
 			if (d != 0) {
                 acc -= d * Math.log(d);
@@ -123,5 +123,11 @@ public class DoubleDescriptor implements Descriptor {
 		}
 		
 		return this.l1norm;
+	}
+	
+	
+	@Override
+	public int getDimensions() {
+		return data.length;
 	}
 }

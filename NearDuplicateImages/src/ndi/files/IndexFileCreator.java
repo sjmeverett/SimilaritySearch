@@ -1,38 +1,33 @@
 package ndi.files;
 
-import java.io.File;
 import java.io.IOException;
 
 import metricspaces.Progress;
+import metricspaces.RelativePath;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.ExtremePivotsIndex;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.IndexFileHeader;
 import metricspaces.indexes.PivotedList;
 import metricspaces.indexes.VantagePointTreeIndex;
+import metricspaces.indexes.pivotselectors.PivotSelector;
 import metricspaces.metrics.Metric;
-import ndi.MetricLoader;
-import ndi.RelativePath;
+import ndi.PivotSelectorLoader;
 
 import commandline.ParameterException;
 import commandline.Parameters;
 
-/**
- * Provides methods for loading and creating index files.
- * @author stewart
- *
- */
-public class IndexFileLoader {
+public class IndexFileCreator {
 	private Parameters parameters;
-	private MetricLoader metrics;
+	private PivotSelectorLoader pivotSelectorLoader;
 	
 	/**
 	 * Constructor.
 	 * @param parameters The command line parameters.
 	 */
-	public IndexFileLoader(Parameters parameters) {
+	public IndexFileCreator(Parameters parameters) {
 		this.parameters = parameters;
-		metrics = new MetricLoader(parameters);
+		pivotSelectorLoader = new PivotSelectorLoader(parameters);
 	}
 	
 	
@@ -42,39 +37,7 @@ public class IndexFileLoader {
 		parameters.describe("l", "For extreme pivots: the number of pivot groups to use.");
 		parameters.describe("m", "For extreme pivots / pivoted list: the number of pivots to use.");
 		parameters.describe("mu", "For extreme pivots: the average distance in the metric space.");
-	}
-	
-	
-	/**
-	 * Opens the specified index file.
-	 * @param path The path to the index file.
-	 * @return
-	 * @throws IOException There was an error reading the index file.
-	 */
-	public Index load(String path, Progress progress) throws IOException {
-		path = new File(path).getAbsolutePath();
-		
-		IndexFileHeader header = new IndexFileHeader(path);
-		Metric metric = metrics.getMetric(header.getMetricName());
-		String descriptorFilePath = new File(new File(path).getParentFile(), header.getDescriptorFile()).getPath();
-		
-		DescriptorFileLoader descriptorLoader = new DescriptorFileLoader(parameters);
-		DescriptorFile objects = descriptorLoader.load(descriptorFilePath);
-		
-		switch (header.getIndexImplementation()) {
-		
-		case IndexFileHeader.VP_TREE:
-			return new VantagePointTreeIndex(header, objects, metric, progress);
-		
-		case IndexFileHeader.EXTREME_PIVOTS:
-			return new ExtremePivotsIndex(header, objects, metric, progress);
-		
-		case IndexFileHeader.PIVOTED_LIST:
-			return new PivotedList(header, objects, metric, progress);
-			
-		default:
-			throw new UnsupportedOperationException("index type not supported");
-		}
+		pivotSelectorLoader.describe();
 	}
 	
 	
@@ -92,7 +55,7 @@ public class IndexFileLoader {
 		
 		RelativePath r = new RelativePath(objects.getHeader().getPath());
 		String descriptorFile = r.getRelativeTo(path);
-		String indexImplementation = parameters.get("indeximplementation");
+		String indexImplementation = parameters.require("indeximplementation");
 		
 		if (indexImplementation.equals("VP")) {
 			IndexFileHeader header = new IndexFileHeader(path, IndexFileHeader.VP_TREE, capacity,
@@ -107,8 +70,9 @@ public class IndexFileLoader {
 			int l = parameters.getInt("l", 10);
 			int m = parameters.getInt("m", 1);
 			double mu = parameters.getDouble("mu");
+			PivotSelector pivotSelector = pivotSelectorLoader.getPivotSelector();
 			
-			return new ExtremePivotsIndex(header, objects, metric, m, l, mu, progress);
+			return new ExtremePivotsIndex(header, objects, metric, m, l, mu, pivotSelector, progress);
 		}
 		else if (indexImplementation.equals("PL")) {
 			IndexFileHeader header = new IndexFileHeader(path, IndexFileHeader.PIVOTED_LIST, capacity,

@@ -94,4 +94,10 @@ public class ByteDescriptor extends DoubleDescriptor {
 	public ByteDescriptorContext getContext() {
 		return context;
 	}
+	
+	
+	@Override
+	public int getDimensions() {
+		return byteData.length;
+	}
 }

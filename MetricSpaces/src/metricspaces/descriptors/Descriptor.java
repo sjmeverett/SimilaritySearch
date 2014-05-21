@@ -11,4 +11,5 @@ public interface Descriptor {
 	double getComplexity();
 	double getMergedComplexity(Descriptor descriptor);
 	double getMagnitude();
+	int getDimensions();
 }

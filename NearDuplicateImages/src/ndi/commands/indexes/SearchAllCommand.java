@@ -8,7 +8,7 @@ import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
-import ndi.files.IndexFileLoader;
+import ndi.files.IndexFileOpener;
 import ndi.files.PairDistanceWriter;
 
 import commandline.Command;
@@ -18,13 +18,13 @@ import commandline.ProgressReporter;
 
 public class SearchAllCommand implements Command {
 	private Parameters parameters;
-	private IndexFileLoader indexLoader;
+	private IndexFileOpener indexOpener;
 
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		indexLoader = new IndexFileLoader(parameters);
+		indexOpener = new IndexFileOpener(parameters);
 	}
 
 	@Override
@@ -33,12 +33,12 @@ public class SearchAllCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress,  250);
 		
 		try {
-			Index index = indexLoader.load(parameters.require("index"), progress);
+			Index index = indexOpener.open(progress);
 			DescriptorFile objects = index.getObjects();
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
 			double radius = parameters.getDouble("radius", Double.NaN);
 			
-			int count = objects.getCapacity();
+			int count = parameters.getInt("count", objects.getCapacity());
 			int found = 0;
 			
 			progress.setOperation("Searching", count);
@@ -76,9 +76,10 @@ public class SearchAllCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("index", "The index file.");
 		parameters.describe("radius", "The search radius to use.");
 		parameters.describe("output", "The path to the CSV file to output to.");
+		parameters.describe("count", "The number of points to search (default, all of them).");
+		indexOpener.describe();
 		
 		return "Searches the given index with all the objects present in the index and writes out the results to a"
 				+ "CSV file";

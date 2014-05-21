@@ -7,14 +7,14 @@ import java.util.List;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.metrics.Metric;
+import metricspaces.metrics.Metrics;
 import ndi.ImagePair;
 import ndi.MetricLoader;
-import ndi.files.DescriptorFileLoader;
 import ndi.files.FileFormatException;
 import ndi.files.ImagePairReader;
 import ndi.files.PairDistanceWriter;
-
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -23,14 +23,10 @@ import commandline.ProgressReporter;
 public class CalculateDistancesCommand implements Command {
 	
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
-	private MetricLoader metrics;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
-		metrics = new MetricLoader(parameters);
 	}
 
 	@Override
@@ -39,14 +35,19 @@ public class CalculateDistancesCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = loader.load(parameters.require("objects"));
-			Metric metric = metrics.getMetric(objects.getHeader());
+			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("objects"));
+			String[] metricNames = parameters.require("metric").split(",");
+			Metric[] metrics = new Metric[metricNames.length];
+			
+			for (int i = 0; i < metricNames.length; i++) {
+				metrics[i] = Metrics.getMetric(metricNames[i]);
+			}
 			
 			List<ImagePair> pairs = getImagePairs();
 			int count = Math.min(parameters.getInt("count", Integer.MAX_VALUE), pairs.size());
 			progress.setOperation("Calculating distances", count);
 			
-			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
+			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"), metricNames);
 			
 			for (ImagePair pair: pairs) {
 				Descriptor x = objects.get(pair.getImage1());
@@ -55,9 +56,13 @@ public class CalculateDistancesCommand implements Command {
 				if (x == null || y == null)
 					continue;
 				
-				double distance = metric.getDistance(x, y);
+				double[] distances = new double[metrics.length];
 				
-				writer.write(pair.getImage1(), pair.getImage2(), distance);
+				for (int i = 0; i < metrics.length; i++) {
+					distances[i] = metrics[i].getDistance(x, y);
+				}
+				
+				writer.write(pair.getImage1(), pair.getImage2(), distances);
 				progress.incrementDone();
 			}
 			
@@ -88,7 +93,7 @@ public class CalculateDistancesCommand implements Command {
 		parameters.describe("objects", "The path to the descriptor file.");
 		parameters.describe("count", "A maximum number of calculations to perform (defaults to all of them).");
 		parameters.describe("output", "The path to the file to output the pairs with distances to.");
-		metrics.describe();
+		parameters.describe("metric", "The metric to use, or a list of metrics separated by commas.");
 		return "Calculates the distance between the pairs in an input CSV file, and writes the pairs with their "
 				+ "distances back out to a CSV file.";
 	}

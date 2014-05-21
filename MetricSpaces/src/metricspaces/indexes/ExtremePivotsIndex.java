@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import metricspaces.Progress;
-import metricspaces.RandomHelper;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.indexes.pivotselectors.PivotSelector;
 import metricspaces.metrics.Metric;
 
 
@@ -45,7 +45,8 @@ public class ExtremePivotsIndex implements Index {
 	
 	
 	public ExtremePivotsIndex(IndexFileHeader header, DescriptorFile objects, Metric metric,
-			int numberOfPivots, int numberOfGroups, double mu, Progress progress) throws IOException {
+			int numberOfPivots, int numberOfGroups, double mu, PivotSelector pivotSelector,
+			Progress progress) throws IOException {
 		
 		if (!header.isWritable())
 			throw new IllegalArgumentException("header must be writable for this constructor");
@@ -71,7 +72,7 @@ public class ExtremePivotsIndex implements Index {
 		header.resize(tableOffset + capacity * recordSize);
 		
 		buffer = header.getBuffer();
-		pivots = initialisePivots();
+		pivots = initialisePivots(pivotSelector);
 	}
 	
 	
@@ -143,16 +144,17 @@ public class ExtremePivotsIndex implements Index {
     }
     
     
-	private Descriptor[] initialisePivots() {
+	private Descriptor[] initialisePivots(PivotSelector pivotSelector) {
 		Descriptor[] pivots = new Descriptor[totalPivots];
-        progress.setOperation("Selecting pivots", totalPivots);
-        int numberOfObjects = objects.getCapacity();
-
-        for (int i = 0; i < totalPivots; i++) {
-            int pivotObjectID = RandomHelper.getNextInt(0, numberOfObjects - 1);
-            pivots[i] = objects.get(pivotObjectID);
-            buffer.putInt(pivotObjectID);
-            progress.incrementDone();
+		Iterable<Integer> pivotIds = pivotSelector.select(totalPivots, objects, metric, progress);
+		
+        progress.setOperation("Reading pivots", totalPivots);
+        int i = 0;
+        
+        for (int id: pivotIds) {
+        	pivots[i++] = objects.get(id);
+        	buffer.putInt(id);
+        	progress.incrementDone();
         }
         
         return pivots;
@@ -289,6 +291,11 @@ public class ExtremePivotsIndex implements Index {
 	
 	public double getMu() {
 		return mu;
+	}
+	
+	
+	public Descriptor[] getPivots() {
+		return pivots;
 	}
 	
 	

@@ -1,8 +1,14 @@
 package metricspaces.indexes;
 
+import java.io.File;
 import java.io.IOException;
 
+import metricspaces.Progress;
+import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.files.LargeBinaryFile;
+import metricspaces.metrics.Metric;
+import metricspaces.metrics.Metrics;
 
 public class IndexFileHeader extends LargeBinaryFile {
 	private final byte indexImplementation;
@@ -61,5 +67,29 @@ public class IndexFileHeader extends LargeBinaryFile {
 	
 	public int getDataOffset() {
 		return dataOffset;
+	}
+	
+	
+	public static Index open(String path, Progress progress) throws IOException {
+		IndexFileHeader header = new IndexFileHeader(path);
+		Metric metric = Metrics.getMetric(header.getMetricName());
+		
+		String descriptorFilePath = new File(new File(path).getParentFile(), header.getDescriptorFile()).getPath();
+		DescriptorFile objects = DescriptorFileHeader.open(descriptorFilePath);
+		
+		switch (header.getIndexImplementation()) {
+		
+		case VP_TREE:
+			return new VantagePointTreeIndex(header, objects, metric, progress);
+		
+		case EXTREME_PIVOTS:
+			return new ExtremePivotsIndex(header, objects, metric, progress);
+		
+		case PIVOTED_LIST:
+			return new PivotedList(header, objects, metric, progress);
+			
+		default:
+			throw new UnsupportedOperationException("index type not supported");
+		}
 	}
 }

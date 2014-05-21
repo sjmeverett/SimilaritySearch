@@ -2,6 +2,8 @@ package ndi.commands;
 
 import ndi.commands.calculations.CalculateANMRRCommand;
 import ndi.commands.calculations.CalculateDistancesCommand;
+import ndi.commands.calculations.DimensionStatsCommand;
+import ndi.commands.calculations.DivergenceCommand;
 import ndi.commands.calculations.GetDistanceCommand;
 import ndi.commands.calculations.GetMeanDistanceCommand;
 import ndi.commands.calculations.TimeMetricCommand;
@@ -12,6 +14,7 @@ import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.DescriptorInfoCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.RandomDescriptorCommand;
+import ndi.commands.descriptors.RelativeDescriptorCommand;
 import ndi.commands.descriptors.SetStatsCommand;
 import ndi.commands.indexes.BuildIndexCommand;
 import ndi.commands.indexes.FindClosestPairsCommand;
@@ -44,6 +47,9 @@ public class Program {
 		program.addCommand(new GetMeanDistanceCommand());
 		program.addCommand(new CopyGistCommand());
 		program.addCommand(new RandomDescriptorCommand());
+		program.addCommand(new RelativeDescriptorCommand());
+		program.addCommand(new DimensionStatsCommand());
+		program.addCommand(new DivergenceCommand());
 		program.run(args);
 	}
 }

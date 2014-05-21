@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import metricspaces.Progress;
 import metricspaces.files.DescriptorFile;
-import ndi.files.DescriptorFileLoader;
+import metricspaces.files.DescriptorFileHeader;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -13,13 +13,11 @@ import commandline.ProgressReporter;
 
 public class SetStatsCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader descriptorLoader;
 
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		descriptorLoader = new DescriptorFileLoader(parameters);
 	}
 
 	@Override
@@ -28,7 +26,7 @@ public class SetStatsCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = descriptorLoader.load(parameters.require("file"));
+			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("file"));
 			
 			double elementMean = getElementMean(objects, progress);
 			double elementMax = Double.NEGATIVE_INFINITY;

@@ -6,9 +6,9 @@ import metricspaces.Progress;
 import metricspaces.RandomHelper;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
-import ndi.files.DescriptorFileLoader;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -17,13 +17,11 @@ import commandline.ProgressReporter;
 
 public class TimeMetricCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
 	private MetricLoader metrics;
 
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
 		metrics = new MetricLoader(parameters);
 	}
 
@@ -34,7 +32,7 @@ public class TimeMetricCommand implements Command {
 		
 		try {
 			String path = parameters.require("descriptors");
-			DescriptorFile objects = loader.load(path);
+			DescriptorFile objects = DescriptorFileHeader.open(path);
 			Metric metric = metrics.getMetric(objects.getHeader());
 			
 			int count = parameters.getInt("count", 1000);

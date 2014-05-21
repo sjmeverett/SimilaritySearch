@@ -14,7 +14,7 @@ import ndi.extractors.DescriptorExtractor;
 import ndi.extractors.mpeg7.colour.ColourStructureExtractor;
 import ndi.extractors.mpeg7.texture.EdgeHistogramExtractor;
 import ndi.extractors.pdna.PdnaExtractor;
-import ndi.files.DescriptorFileLoader;
+import ndi.files.DescriptorFileCreator;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -24,13 +24,13 @@ import commandline.ProgressReporter;
 
 public class ExtractDescriptorCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader descriptorLoader;
+	private DescriptorFileCreator descriptorLoader;
 	private Map<String, DescriptorExtractor> descriptors;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		descriptorLoader = new DescriptorFileLoader(parameters);
+		descriptorLoader = new DescriptorFileCreator(parameters);
 		
 		descriptors = new HashMap<String, DescriptorExtractor>();
 		descriptors.put("MyEH", new EdgeHistogramExtractor(1100, 11));

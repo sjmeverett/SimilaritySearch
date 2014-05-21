@@ -5,9 +5,9 @@ import java.io.IOException;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.metrics.Metric;
 import ndi.MetricLoader;
-import ndi.files.DescriptorFileLoader;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -16,7 +16,6 @@ import commandline.ProgressReporter;
 
 public class GetMeanDistanceCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader descriptorLoader;
 	private MetricLoader metricLoader;
 	
 	private static final int MEAN_COUNT = 10000;
@@ -24,7 +23,6 @@ public class GetMeanDistanceCommand implements Command {
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		descriptorLoader = new DescriptorFileLoader(parameters);
 		metricLoader = new MetricLoader(parameters);
 	}
 
@@ -34,7 +32,7 @@ public class GetMeanDistanceCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = descriptorLoader.load(parameters.require("file"));
+			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("file"));
 			Metric metric = metricLoader.getMetric(objects.getHeader());
 			
 			int n = MEAN_COUNT * (MEAN_COUNT - 1) / 2;

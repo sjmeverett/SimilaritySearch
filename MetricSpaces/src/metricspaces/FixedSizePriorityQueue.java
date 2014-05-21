@@ -1,7 +1,8 @@
-package ndi;
+package metricspaces;
 
 import java.util.AbstractQueue;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -11,14 +12,21 @@ import java.util.NoSuchElementException;
  *
  * @param <E>
  */
-public class FixedSizePriorityQueue<E extends Comparable<E>> extends AbstractQueue<E> {
-	private final Object[] items;
+public class FixedSizePriorityQueue<E> extends AbstractQueue<E> {
+	private final E[] items;
+	private final Comparator<? super E> comparator;
 	private int start, end;
 	
-	public FixedSizePriorityQueue(int size) {
-		items = new Object[size];
+	@SuppressWarnings("unchecked")
+	public FixedSizePriorityQueue(int size, Comparator<? super E> comparator) {
+		this.comparator = comparator;
+		items = (E[])new Object[size];
 		start = 0;
 		end = 0;
+	}
+	
+	public FixedSizePriorityQueue(int size) {
+		this(size, null);
 	}
 
 	@Override
@@ -27,7 +35,10 @@ public class FixedSizePriorityQueue<E extends Comparable<E>> extends AbstractQue
 		int pos;
 		
 		if (start < items.length) {
-			pos = Arrays.binarySearch(items, start, end, e);
+			if (comparator == null)
+				pos = Arrays.binarySearch(items, start, end, e);
+			else
+				pos = Arrays.binarySearch(items, start, end, e, comparator);
 			
 			if (pos < 0) {
 				//get the insertion point
@@ -67,21 +78,19 @@ public class FixedSizePriorityQueue<E extends Comparable<E>> extends AbstractQue
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public E poll() {
 		if (size() == 0)
 			return null;
 		
-		return (E)items[start++];
+		return items[start++];
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public E peek() {
 		if (size() == 0)
 			return null;
 		
-		return (E)items[start];
+		return items[start];
 	}
 
 	@Override
@@ -95,12 +104,11 @@ public class FixedSizePriorityQueue<E extends Comparable<E>> extends AbstractQue
 			}
 
 			@Override
-			@SuppressWarnings("unchecked")
 			public E next() {
 				if (!hasNext())
 					throw new NoSuchElementException();
 				
-				return (E)items[i++];
+				return items[i++];
 			}
 
 			@Override

@@ -5,8 +5,9 @@ import java.io.IOException;
 
 import metricspaces.Progress;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.files.TextDescriptorFile;
-import ndi.files.DescriptorFileLoader;
+import ndi.files.DescriptorFileCreator;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -21,12 +22,12 @@ import commandline.ProgressReporter;
  */
 public class CopyDescriptorsCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
+	private DescriptorFileCreator creator;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
+		creator = new DescriptorFileCreator(parameters);
 	}
 	
 	@Override
@@ -50,11 +51,11 @@ public class CopyDescriptorsCommand implements Command {
 				input = new TextDescriptorFile(f, filenameTemplate);
 			}
 			else {
-				input = loader.load(inputPath);
+				input = DescriptorFileHeader.open(inputPath);
 			}
 
 			String descriptorName = parameters.require("descriptorname");
-			DescriptorFile output = loader.create(outputPath, input.getCapacity(), input.getDimensions(), descriptorName);
+			DescriptorFile output = creator.create(outputPath, input.getCapacity(), input.getDimensions(), descriptorName);
 			
 			progress.setOperation("copying", input.getCapacity());
 			
@@ -83,7 +84,7 @@ public class CopyDescriptorsCommand implements Command {
 
 	@Override
 	public String describe() {
-		loader.describe();
+		creator.describe();
 		parameters.describe("input", "The path to the file to copy the descriptors from. If you point this at a "
 				+ "directory, a directory full of text descriptor files will be assumed.");
 		parameters.describe("output", "The path to the file to copy the descriptors to.");

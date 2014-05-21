@@ -1,21 +1,17 @@
 package ndi.commands.indexes;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
-import metricspaces.PairDistance;
+import metricspaces.FixedSizePriorityQueue;
 import metricspaces.Progress;
 import metricspaces.indexes.ExpandingSearch;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
-import ndi.FixedSizePriorityQueue;
-import ndi.files.IndexFileLoader;
+import ndi.files.IndexFileOpener;
 import ndi.files.PairDistanceWriter;
 import commandline.Command;
 import commandline.ParameterException;
@@ -24,12 +20,12 @@ import commandline.ProgressReporter;
 
 public class FindClosestPairsCommand implements Command {
 	private Parameters parameters;
-	private IndexFileLoader indexLoader;
+	private IndexFileOpener indexOpener;
 
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		indexLoader = new IndexFileLoader(parameters);
+		indexOpener = new IndexFileOpener(parameters);
 	}
 
 	@Override
@@ -39,7 +35,7 @@ public class FindClosestPairsCommand implements Command {
 		
 		try {
 			//get the parameters
-			Index index = indexLoader.load(parameters.require("index"), progress);
+			Index index = indexOpener.open(progress);
 			double initialRadius = parameters.getDouble("initialRadius");
 			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
 			int numberOfPairs = parameters.getInt("pairs", 5000);
@@ -96,12 +92,12 @@ public class FindClosestPairsCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("index", "The index file.");
 		parameters.describe("initialRadius", "The initial search radius to use.");
 		parameters.describe("increasingFactor", "The amount to increase the search radius by each iteration ("
 				+ "default 1.1).");
 		parameters.describe("pairs", "The minimum number of pairs to find (default 5000).");
 		parameters.describe("output", "The path to the CSV file to output to.");
+		indexOpener.describe();
 		
 		return "Searches the given index with all the objects present in the index in order to find the n closest pairs. "
 				+ "The search uses initialRadius as the search radius, and iterates increasing the radius by "

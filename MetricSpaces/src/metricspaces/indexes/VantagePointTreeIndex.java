@@ -18,7 +18,7 @@ public class VantagePointTreeIndex implements Index {
 	private final Metric metric;
 	private final ByteBuffer buffer;
 	private final Progress progress;
-	private final int capacity;
+	private final int capacity, dataOffset;
 	private int distanceCalculations;
 	
 	private static final int NODE_SIZE = 28;
@@ -27,6 +27,7 @@ public class VantagePointTreeIndex implements Index {
 	public VantagePointTreeIndex(IndexFileHeader header, DescriptorFile objects, Metric metric, Progress progress)
 			throws IOException {
 		
+		dataOffset = header.getDataOffset();
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
@@ -34,7 +35,7 @@ public class VantagePointTreeIndex implements Index {
 		capacity = header.getCapacity();
 		
 		if (header.isWritable()) {
-			header.resize(header.getDataOffset() + capacity * NODE_SIZE);
+			header.resize(dataOffset + capacity * NODE_SIZE);
 		}
 		
 		buffer = header.getBuffer();
@@ -130,7 +131,7 @@ public class VantagePointTreeIndex implements Index {
 	@Override
 	public List<SearchResult> search(Descriptor query, double radius) {
 		List<SearchResult> results = new ArrayList<SearchResult>();
-        search(0, query, null, radius, results, Double.NaN);
+        search(dataOffset, query, null, radius, results, Double.NaN);
 
         return results;
     }
@@ -142,7 +143,7 @@ public class VantagePointTreeIndex implements Index {
 		Descriptor query = objects.get(key);
 		
 		List<SearchResult> results = new ArrayList<SearchResult>();
-        search(0, query, key, radius, results, Double.NaN);
+        search(dataOffset, query, key, radius, results, Double.NaN);
         
         return results;
 	}

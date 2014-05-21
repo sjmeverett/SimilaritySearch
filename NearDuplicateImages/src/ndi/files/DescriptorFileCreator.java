@@ -6,7 +6,9 @@ import metricspaces.files.ByteDescriptorFile;
 import metricspaces.files.DescriptorFile;
 import metricspaces.files.DescriptorFileHeader;
 import metricspaces.files.DoubleDescriptorFile;
+import metricspaces.files.RelativeDescriptorFile;
 import metricspaces.files.SingleDescriptorFile;
+
 import commandline.ParameterException;
 import commandline.Parameters;
 
@@ -15,14 +17,14 @@ import commandline.Parameters;
  * @author stewart
  *
  */
-public class DescriptorFileLoader {
+public class DescriptorFileCreator {
 	private Parameters parameters;
 	
 	/**
 	 * Constructor.
 	 * @param parameters The command line parameters.
 	 */
-	public DescriptorFileLoader(Parameters parameters) {
+	public DescriptorFileCreator(Parameters parameters) {
 		this.parameters = parameters;
 	}
 	
@@ -33,29 +35,6 @@ public class DescriptorFileLoader {
 				+ "The elements will be scaled by this before being converted to byte. Defaults to 1.");
 		parameters.describe("l1norm", "For byte descriptors: the fixed value that all descriptors sum to, or 0 if "
 				+ "they are not normalised. Defaults to 0.");
-	}
-	
-	/**
-	 * Opens an existing descriptor file.
-	 * @param path
-	 * @return
-	 * @throws IOException There was an error reading the descriptor file.
-	 */
-	public DescriptorFile load(String path) throws IOException {
-		DescriptorFileHeader header = new DescriptorFileHeader(path);
-		
-		switch (header.getDescriptorType()) {
-		
-		case DescriptorFileHeader.BYTE_TYPE:
-			return new ByteDescriptorFile(header);
-		case DescriptorFileHeader.DOUBLE_TYPE:
-			return new DoubleDescriptorFile(header);
-		case DescriptorFileHeader.SINGLE_TYPE:
-			return new SingleDescriptorFile(header);
-		default:
-			throw new UnsupportedOperationException("Descriptor file type not supported.");
-			
-		}
 	}
 	
 	
@@ -92,7 +71,7 @@ public class DescriptorFileLoader {
 					capacity, dimensions, descriptorName);
 			
 			return new SingleDescriptorFile(header);
-		}
+		} 
 		else {
 			throw new ParameterException("descriptor type not supported");
 		}

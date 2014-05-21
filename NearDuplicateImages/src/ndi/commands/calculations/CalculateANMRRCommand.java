@@ -7,14 +7,14 @@ import java.util.Set;
 
 import metricspaces.Progress;
 import metricspaces.files.DescriptorFile;
+import metricspaces.files.DescriptorFileHeader;
 import metricspaces.indexes.Index;
 import metricspaces.metrics.Metric;
 import ndi.ANMRRCalculator;
 import ndi.MetricLoader;
 import ndi.files.ClusterReader;
-import ndi.files.DescriptorFileLoader;
 import ndi.files.FileFormatException;
-import ndi.files.IndexFileLoader;
+import ndi.files.IndexFileOpener;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -23,72 +23,51 @@ import commandline.ProgressReporter;
 
 public class CalculateANMRRCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader descriptorLoader;
-	private IndexFileLoader indexLoader;
+	private IndexFileOpener indexOpener;
 	private MetricLoader metricLoader;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		descriptorLoader = new DescriptorFileLoader(parameters);
-		indexLoader = new IndexFileLoader(parameters);
+		indexOpener = new IndexFileOpener(parameters);
 		metricLoader = new MetricLoader(parameters);
 	}
 
 	@Override
 	public void run() {
 		Progress progress = new Progress();
-		//ProgressReporter reporter = new ProgressReporter(progress, 250);
+		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
 			//load the clusters
 			ClusterReader reader = new ClusterReader(parameters.require("input"), false);
 			List<Set<Integer>> clusters = new ArrayList<>(reader.read().values());
 			
-//			if (parameters.get("max") != null) {
-//				clusters = clusters.subList(0, parameters.getInt("max"));
-//			}
-//			
-//			ANMRRCalculator calculator = new ANMRRCalculator(clusters, progress);
-//			double anmrr = 0;
-//			
-//			if (parameters.get("index") != null) {
-//				Index index = indexLoader.load(parameters.require("index"), progress);
-//				double initialRadius = parameters.getDouble("initialRadius");
-//				double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
-//				anmrr = calculator.calculate(index, initialRadius, increasingFactor);
-//			}
-//			else {
-//				DescriptorFile objects = descriptorLoader.load(parameters.require("objects"));
-//				Metric metric = metricLoader.getMetric(objects.getHeader());
-//				anmrr = calculator.calculate(objects, metric);
-//			}
-			
-			Index index = indexLoader.load(parameters.require("index"), progress);
-			double initialRadius = parameters.getDouble("initialRadius");
-			double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
-			Metric metric = metricLoader.getMetric(index.getHeader().getMetricName());
-			DescriptorFile objects = index.getObjects();
-			
-			for (int i = 0; i < clusters.size(); i++) {
-				List<Set<Integer>> list = new ArrayList<>();
-				list.add(clusters.get(i));
-				ANMRRCalculator calculator = new ANMRRCalculator(list, progress);
-				double a1 = calculator.calculate(objects, metric);
-				double a2 = calculator.calculate(index, initialRadius, increasingFactor);
-				
-				if (Math.abs(a1 - a2) > 1e-6) {
-					System.out.println(i);
-					break;
-				}
+			if (parameters.get("max") != null) {
+				clusters = clusters.subList(0, parameters.getInt("max"));
 			}
 			
-			//reporter.stop();
+			ANMRRCalculator calculator = new ANMRRCalculator(clusters, progress);
+			double anmrr = 0;
 			
-			//System.out.printf("ANMRR: %f\n", anmrr);
+			if (parameters.get("index") != null) {
+				Index index = indexOpener.open(progress);
+				double initialRadius = parameters.getDouble("initialRadius");
+				double increasingFactor = parameters.getDouble("increasingFactor", 1.1);
+				anmrr = calculator.calculate(index, initialRadius, increasingFactor);
+			}
+			else {
+				DescriptorFile objects = DescriptorFileHeader.open(parameters.require("objects"));
+				Metric metric = metricLoader.getMetric(objects.getHeader());
+				anmrr = calculator.calculate(objects, metric);
+			}
+	
+			reporter.stop();
+			
+			System.out.printf("ANMRR: %f\n", anmrr);
 		}
 		catch (ParameterException | IOException | FileFormatException e) {
-			//reporter.stop();
+			reporter.stop();
 			System.out.println(e.getMessage());
 		}
 	}
@@ -101,7 +80,6 @@ public class CalculateANMRRCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("index", "The path to the index file to use.");
 		parameters.describe("initialRadius", "The initial search radius to use.");
 		parameters.describe("increasingFactor", "The amount to increase the search radius by each iteration ("
 				+ "default 1.1).");
@@ -109,6 +87,7 @@ public class CalculateANMRRCommand implements Command {
 		parameters.describe("objects", "The descriptor file to search.");
 		parameters.describe("max", "The maximum number of clusters to assess (by default all the clusters are assessed).");
 		metricLoader.describe();
+		indexOpener.describe();
 		
 		return "Calculates the MPEG-7 ANMRR statistic for the given search strategy and list of near-duplicates.  Either "
 				+ "an index file, initial radius, and increasing factor should be provided or a descriptor file and metric. "

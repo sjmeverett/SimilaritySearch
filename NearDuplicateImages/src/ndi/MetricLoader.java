@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import metricspaces.files.DescriptorFileHeader;
+import metricspaces.metrics.ChebyshevMetric;
 import metricspaces.metrics.CosineAngularMetric;
 import metricspaces.metrics.EuclidianMetric;
 import metricspaces.metrics.ManhattanMetric;
@@ -30,6 +31,7 @@ public class MetricLoader {
 	
 	private static void loadMetrics() {
 		metrics = new HashMap<String, Metric>();
+		addMetric(new ChebyshevMetric());
 		addMetric(new SEDByComplexityMetric());
 		addMetric(new CosineAngularMetric());
 		addMetric(new ManhattanMetric());

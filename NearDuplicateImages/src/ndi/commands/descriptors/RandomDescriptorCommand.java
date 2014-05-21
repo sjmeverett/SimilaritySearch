@@ -6,7 +6,7 @@ import java.util.Random;
 import metricspaces.Progress;
 import metricspaces.descriptors.DoubleDescriptor;
 import metricspaces.files.DescriptorFile;
-import ndi.files.DescriptorFileLoader;
+import ndi.files.DescriptorFileCreator;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -15,13 +15,13 @@ import commandline.ProgressReporter;
 
 public class RandomDescriptorCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileLoader loader;
+	private DescriptorFileCreator loader;
 	
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileLoader(parameters);
+		loader = new DescriptorFileCreator(parameters);
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class RandomDescriptorCommand implements Command {
 		try {
 			int count = parameters.getInt("count");
 			int dimensions = parameters.getInt("dimensions");
-			DescriptorFile objects = loader.create(parameters.require("out"), count, dimensions, "RAND" + dimensions);
+			DescriptorFile objects = loader.create(parameters.require("out"), count, dimensions, "Random" + dimensions);
 			Random random = new Random();
 			
 			progress.setOperation("Generating", count);

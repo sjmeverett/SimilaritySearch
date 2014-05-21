@@ -24,8 +24,8 @@ public class ProgressReporter implements Runnable {
     @Override
     public void run() {
     	//don't bother if in eclipse
-    	if (System.console() == null)
-    		return;
+    	//if (System.console() == null)
+    	//	return;
     	
         try {
             String op = "";
