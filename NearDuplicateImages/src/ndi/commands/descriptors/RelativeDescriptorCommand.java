@@ -2,10 +2,9 @@ package ndi.commands.descriptors;
 
 import java.io.IOException;
 
-import metricspaces.Progress;
-import metricspaces.update.common.LargeBinaryFile;
-import metricspaces.update.relative.RelativeDescriptorFile;
-
+import metricspaces.relative.RelativeDescriptorFile;
+import metricspaces.util.LargeBinaryFile;
+import metricspaces.util.Progress;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

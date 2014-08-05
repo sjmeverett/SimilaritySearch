@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Queue;
 
-import metricspaces.FixedSizePriorityQueue;
+import metricspaces.util.FixedSizePriorityQueue;
 
 import org.junit.Test;
 

@@ -4,8 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import metricspaces.PairDistance;
-import metricspaces.indexes.SearchResult;
+import metricspaces.indices.SearchResult;
+import metricspaces.pairs.PairDistance;
 
 /**
  * Writes CSV files which contain image pairs and the distances between them.

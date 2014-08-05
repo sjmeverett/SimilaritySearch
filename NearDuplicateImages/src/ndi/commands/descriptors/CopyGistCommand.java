@@ -9,13 +9,12 @@ import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import metricspaces.Progress;
-import metricspaces.descriptors.SingleDescriptor;
-import metricspaces.update.common.DescriptorFile;
-import metricspaces.update.common.DescriptorFormat;
-import metricspaces.update.common.LargeBinaryFile;
-import metricspaces.update.single.SingleDescriptorFile;
-
+import metricspaces.descriptors.DescriptorFile;
+import metricspaces.descriptors.DescriptorFormat;
+import metricspaces.single.SingleDescriptor;
+import metricspaces.single.SingleDescriptorFile;
+import metricspaces.util.LargeBinaryFile;
+import metricspaces.util.Progress;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

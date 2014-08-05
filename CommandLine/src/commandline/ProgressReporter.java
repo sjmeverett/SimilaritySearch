@@ -1,6 +1,6 @@
 package commandline;
 
-import metricspaces.Progress;
+import metricspaces.util.Progress;
 
 /**
  * Provides commandline feedback of the progress of tasks.

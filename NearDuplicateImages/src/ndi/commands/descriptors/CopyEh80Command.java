@@ -3,15 +3,14 @@ package ndi.commands.descriptors;
 import java.io.IOException;
 import java.util.Arrays;
 
-import metricspaces.Progress;
-import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.update._double.DoubleDescriptorFile;
-import metricspaces.update.common.CommonDescriptorFile;
-import metricspaces.update.common.DescriptorFile;
-import metricspaces.update.common.DescriptorFileFactory;
-import metricspaces.update.common.DescriptorFormat;
-import metricspaces.update.common.LargeBinaryFile;
-
+import metricspaces._double.DoubleDescriptor;
+import metricspaces._double.DoubleDescriptorFile;
+import metricspaces.descriptors.CommonDescriptorFile;
+import metricspaces.descriptors.DescriptorFile;
+import metricspaces.descriptors.DescriptorFileFactory;
+import metricspaces.descriptors.DescriptorFormat;
+import metricspaces.util.LargeBinaryFile;
+import metricspaces.util.Progress;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

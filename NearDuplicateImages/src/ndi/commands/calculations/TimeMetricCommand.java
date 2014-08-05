@@ -2,12 +2,11 @@ package ndi.commands.calculations;
 
 import java.io.IOException;
 
-import metricspaces.Progress;
-import metricspaces.RandomHelper;
-import metricspaces.update.common.DescriptorFile;
-import metricspaces.update.common.DescriptorFileFactory;
-import metricspaces.update.common.MetricSpace;
-
+import metricspaces.descriptors.DescriptorFile;
+import metricspaces.descriptors.DescriptorFileFactory;
+import metricspaces.metrics.MetricSpace;
+import metricspaces.util.Progress;
+import metricspaces.util.RandomHelper;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

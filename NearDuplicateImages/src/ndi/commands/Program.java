@@ -11,12 +11,11 @@ import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.RandomDescriptorCommand;
 import ndi.commands.descriptors.RelativeDescriptorCommand;
-import ndi.commands.indexes.BuildIndexCommand;
-import ndi.commands.indexes.NearestNeighbourCommand;
-import ndi.commands.indexes.SearchAllCommand;
-import ndi.commands.indexes.SearchCommand;
-import ndi.commands.indexes.SearchTimeCommand;
-
+import ndi.commands.indices.BuildIndexCommand;
+import ndi.commands.indices.NearestNeighbourCommand;
+import ndi.commands.indices.SearchAllCommand;
+import ndi.commands.indices.SearchCommand;
+import ndi.commands.indices.SearchTimeCommand;
 import commandline.CommandLineProgram;
 
 public class Program {

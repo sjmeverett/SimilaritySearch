@@ -4,13 +4,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import metricspaces.Progress;
+import metricspaces.util.Progress;
 import ndi.MirFlickrUrl;
-import ndi.extractors.update.ColourStructureExtractor;
-import ndi.extractors.update.DescriptorExtractor;
-import ndi.extractors.update.EdgeHistogramExtractor;
-import ndi.extractors.update.PhotoDnaExtractor;
-
+import ndi.extractors.DescriptorExtractor;
+import ndi.extractors.mpeg7.ColourStructureExtractor;
+import ndi.extractors.mpeg7.EdgeHistogramExtractor;
+import ndi.extractors.pdna.PhotoDnaExtractor;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

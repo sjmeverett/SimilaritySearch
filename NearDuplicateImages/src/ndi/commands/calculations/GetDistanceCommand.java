@@ -2,11 +2,9 @@ package ndi.commands.calculations;
 
 import java.io.IOException;
 
-import metricspaces.descriptors.Descriptor;
-import metricspaces.update.common.DescriptorFile;
-import metricspaces.update.common.DescriptorFileFactory;
-import metricspaces.update.common.MetricSpace;
-
+import metricspaces.descriptors.DescriptorFile;
+import metricspaces.descriptors.DescriptorFileFactory;
+import metricspaces.metrics.MetricSpace;
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

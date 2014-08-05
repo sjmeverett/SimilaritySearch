@@ -1,7 +1,7 @@
 package metricspaces;
 
 import static org.junit.Assert.assertEquals;
-import metricspaces.RelativePath;
+import metricspaces.util.RelativePath;
 
 import org.junit.Test;
 

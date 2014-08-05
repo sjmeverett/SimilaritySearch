@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import metricspaces.Progress;
-import metricspaces.update.common.DescriptorFile;
-import metricspaces.update.common.DescriptorFileFactory;
-import metricspaces.update.common.MetricSpace;
+import metricspaces.descriptors.DescriptorFile;
+import metricspaces.descriptors.DescriptorFileFactory;
+import metricspaces.metrics.MetricSpace;
+import metricspaces.util.Progress;
 import ndi.ImagePair;
 import ndi.files.FileFormatException;
 import ndi.files.ImagePairReader;
 import ndi.files.PairDistanceWriter;
-
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;

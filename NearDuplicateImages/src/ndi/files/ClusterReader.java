@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import metricspaces.ClusterFinder;
+import metricspaces.util.ClusterFinder;
 import ndi.ImagePair;
 
 public class ClusterReader {
