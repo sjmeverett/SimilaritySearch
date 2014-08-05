@@ -10,7 +10,7 @@ import metricspaces.metrics.Metric;
 import metricspaces.metrics.Metrics;
 
 
-public class RelativeDescriptorFile extends DoubleDescriptorFile {
+public class RelativeDescriptorFile extends DoubleDescriptorFile implements Metric {
 	private final DescriptorFile originalDescriptors;
 	private final Metric metric;
 	private final Descriptor[] referencePoints;
@@ -109,14 +109,14 @@ public class RelativeDescriptorFile extends DoubleDescriptorFile {
 	}
 	
 	
-	public double getDistance(Descriptor x, int id) {
-		Descriptor y = originalDescriptors.get(id);
-		return getDistance(x, y);
-	}
-	
-	
-	private double getDistance(Descriptor x, Descriptor y) {
+	public double getDistance(Descriptor x, Descriptor y) {
 		distanceCalculations++;
 		return metric.getDistance(x, y);
+	}
+
+
+	@Override
+	public String getName() {
+		return metric.getName();
 	}
 }

@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
 import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.files.DescriptorFile;
-import metricspaces.files.DescriptorFileHeader;
-import ndi.files.DescriptorFileCreator;
+import metricspaces.update._double.DoubleDescriptorFile;
+import metricspaces.update.common.CommonDescriptorFile;
+import metricspaces.update.common.DescriptorFile;
+import metricspaces.update.common.DescriptorFileFactory;
+import metricspaces.update.common.DescriptorFormat;
+import metricspaces.update.common.LargeBinaryFile;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -17,12 +19,10 @@ import commandline.ProgressReporter;
 
 public class CopyEh80Command implements Command {
 	private Parameters parameters;
-	private DescriptorFileCreator creator;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		creator = new DescriptorFileCreator(parameters);
 	}
 
 	@Override
@@ -31,25 +31,35 @@ public class CopyEh80Command implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("ehall"));
+			DescriptorFile objects = DescriptorFileFactory.open(parameters.require("ehall"), false);
 			
-			if (!objects.getHeader().getDescriptorName().equals("EhAll"))
+			if (!objects.getDescriptorName().equals("EhAll"))
 				throw new ParameterException("Descriptor file is not EhAll");
 			
-			DescriptorFile eh80 = creator.create(parameters.require("out"), objects.getCapacity(), 80, "Eh80");
-			progress.setOperation("Copying", objects.getCapacity());
+			if (!(objects instanceof CommonDescriptorFile))
+				throw new ParameterException("Descriptor file is not a common descriptor file");
 			
-			for (int i = 0; i < objects.getCapacity(); i++) {
-				Descriptor descriptor = objects.get(i);
+			CommonDescriptorFile input = (CommonDescriptorFile)objects;
+			DescriptorFormat<DoubleDescriptor> inputFormat = input.getCommonFormat();
+			int size = input.getSize();
+			
+			DoubleDescriptorFile output = new DoubleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			DescriptorFormat<DoubleDescriptor> outputFormat = output.getFormat();
+			output.writeHeader(DescriptorFile.DOUBLE_TYPE, size, 80, "Eh80");
+			
+			progress.setOperation("Copying", size);
+			
+			for (int i = 0; i < size; i++) {
+				DoubleDescriptor descriptor = inputFormat.get();
 				double[] data = descriptor.getData();
 				double[] eh80data = Arrays.copyOf(data, 80);
-				Descriptor newdescriptor = new DoubleDescriptor(eh80data);
-				eh80.put(newdescriptor);
+				DoubleDescriptor newdescriptor = new DoubleDescriptor(eh80data);
+				outputFormat.put(newdescriptor);
 				progress.incrementDone();
 			}
 			
-			eh80.close();
-			objects.close();
+			input.close();
+			output.close();
 			reporter.stop();
 		}
 		catch (ParameterException | IOException ex) {
@@ -67,7 +77,6 @@ public class CopyEh80Command implements Command {
 	public String describe() {
 		parameters.describe("ehall", "The EhAll file to copy descriptors from.");
 		parameters.describe("out", "The path of the Eh80 file to create.");
-		creator.describe();
 		return "Creates an Eh80 descriptor file by copying descriptors from an EhAll file."; 
 	}
 

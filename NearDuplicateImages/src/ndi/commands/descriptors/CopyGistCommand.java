@@ -10,9 +10,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.files.DescriptorFile;
-import ndi.files.DescriptorFileCreator;
+import metricspaces.descriptors.SingleDescriptor;
+import metricspaces.update.common.DescriptorFile;
+import metricspaces.update.common.DescriptorFormat;
+import metricspaces.update.common.LargeBinaryFile;
+import metricspaces.update.single.SingleDescriptorFile;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -21,7 +23,6 @@ import commandline.ProgressReporter;
 
 public class CopyGistCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileCreator loader;
 	private RandomAccessFile raf;
 	
 	private static final int COUNT = 1000000;
@@ -34,7 +35,6 @@ public class CopyGistCommand implements Command {
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileCreator(parameters);
 	}
 
 	@Override
@@ -44,23 +44,23 @@ public class CopyGistCommand implements Command {
 		
 		try {
 			File dir = new File(parameters.require("dir"));
-			DescriptorFile objects = loader.create(parameters.require("out"), COUNT, GIST_SIZE, "GIST");
+			
+			SingleDescriptorFile output = new SingleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			DescriptorFormat<SingleDescriptor> outputFormat = output.getFormat();
+			output.writeHeader(DescriptorFile.SINGLE_TYPE, COUNT, GIST_SIZE, "GIST");
 			
 			progress.setOperation("Copying", COUNT);
+			float[] data = new float[GIST_SIZE];
 			
 			for (int i = 0; i < COUNT; i++) {
 				FloatBuffer buffer = getBuffer(dir, i);
-				double[] data = new double[GIST_SIZE];
-				
-				for (int j = 0; j < data.length; j++)
-					data[j] = buffer.get();
-				
-				objects.put(new DoubleDescriptor(data));
-				
+				buffer.get(data);
+				outputFormat.put(new SingleDescriptor(data));
 				raf.close();
 				progress.incrementDone();
 			}
 			
+			output.close();
 			reporter.stop();
 		}
 		catch (ParameterException | IOException ex) {
@@ -87,7 +87,6 @@ public class CopyGistCommand implements Command {
 	public String describe() {
 		parameters.describe("dir", "The directory containing the GIST information.");
 		parameters.describe("out", "The path of the descriptor file to create.");
-		loader.describe();
 		return "Creates a GIST descriptor file by copying descriptors from separate data files."; 
 	}
 

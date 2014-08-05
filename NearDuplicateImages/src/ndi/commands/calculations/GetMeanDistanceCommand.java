@@ -3,11 +3,10 @@ package ndi.commands.calculations;
 import java.io.IOException;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
-import metricspaces.files.DescriptorFile;
-import metricspaces.files.DescriptorFileHeader;
-import metricspaces.metrics.Metric;
-import ndi.MetricLoader;
+import metricspaces.update.common.DescriptorFile;
+import metricspaces.update.common.DescriptorFileFactory;
+import metricspaces.update.common.MetricSpace;
+import metricspaces.update.common.MetricSpaceObject;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -16,14 +15,12 @@ import commandline.ProgressReporter;
 
 public class GetMeanDistanceCommand implements Command {
 	private Parameters parameters;
-	private MetricLoader metricLoader;
 	
 	private static final int MEAN_COUNT = 10000;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		metricLoader = new MetricLoader(parameters);
 	}
 
 	@Override
@@ -32,8 +29,8 @@ public class GetMeanDistanceCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("file"));
-			Metric metric = metricLoader.getMetric(objects.getHeader());
+			DescriptorFile objects = DescriptorFileFactory.open(parameters.require("file"), false);
+			MetricSpace space = objects.getMetricSpace(parameters.require("metric"));
 			
 			int n = MEAN_COUNT * (MEAN_COUNT - 1) / 2;
 			double sum = 0;
@@ -41,11 +38,10 @@ public class GetMeanDistanceCommand implements Command {
 			progress.setOperation("Calculating mean distance", n);
 			
 			for (int i = 0; i < MEAN_COUNT; i++) {
-				Descriptor x = objects.get(i);
+				MetricSpaceObject obj = space.getObject(i);
 				
 				for (int j = i + 1; j < MEAN_COUNT; j++) {
-					Descriptor y = objects.get(j);
-					sum += metric.getDistance(x, y);
+					sum += obj.getDistance(j);
 					progress.incrementDone();
 				}
 			}
@@ -68,7 +64,7 @@ public class GetMeanDistanceCommand implements Command {
 	@Override
 	public String describe() {
 		parameters.describe("file", "The path to the descriptor file.");
-		metricLoader.describe();
+		parameters.describe("metric", "The metric to use.");
 		return "Calculates the mean distance for the specified descriptor file and metric.";
 	}
 

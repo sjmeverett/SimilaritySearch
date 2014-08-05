@@ -14,15 +14,22 @@ public class FixedSizePriorityQueueTest {
 
 	@Test
 	public void test() {
-		Queue<Integer> queue = new FixedSizePriorityQueue<Integer>(3);
+		FixedSizePriorityQueue<Integer> queue = new FixedSizePriorityQueue<>(3);
 		queue.add(6);
 		assertEquals(1, queue.size());
+		assertNull(queue.getEnd());
+		
 		queue.add(5);
 		assertEquals(2, queue.size());
+		assertNull(queue.getEnd());
+		
 		queue.add(1);
 		assertEquals(3, queue.size());
+		assertEquals(6, (int)queue.getEnd());
+		
 		queue.add(3);
 		assertEquals(3, queue.size());
+		assertEquals(5, (int)queue.getEnd());
 		
 		Iterator<Integer> it = queue.iterator();
 		assertEquals(1, it.next().intValue());
@@ -32,6 +39,7 @@ public class FixedSizePriorityQueueTest {
 		
 		assertEquals(1, queue.remove().intValue());
 		assertEquals(2, queue.size());
+		assertNull(queue.getEnd());
 		
 		it = queue.iterator();
 		assertEquals(3, it.next().intValue());
@@ -44,6 +52,7 @@ public class FixedSizePriorityQueueTest {
 		assertEquals(4, it.next().intValue());
 		assertEquals(5, it.next().intValue());
 		assertFalse(it.hasNext());
+		assertEquals(5, (int)queue.getEnd());
 		
 		queue.remove();
 		queue.add(1);
@@ -52,6 +61,7 @@ public class FixedSizePriorityQueueTest {
 		assertEquals(4, it.next().intValue());
 		assertEquals(5, it.next().intValue());
 		assertFalse(it.hasNext());
+		assertEquals(5, (int)queue.getEnd());
 	}
 	
 	

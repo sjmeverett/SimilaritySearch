@@ -5,16 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
-import metricspaces.files.DescriptorFile;
-import metricspaces.files.DescriptorFileHeader;
-import metricspaces.metrics.Metric;
-import metricspaces.metrics.Metrics;
+import metricspaces.update.common.DescriptorFile;
+import metricspaces.update.common.DescriptorFileFactory;
+import metricspaces.update.common.MetricSpace;
 import ndi.ImagePair;
-import ndi.MetricLoader;
 import ndi.files.FileFormatException;
 import ndi.files.ImagePairReader;
 import ndi.files.PairDistanceWriter;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -35,12 +33,12 @@ public class CalculateDistancesCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			DescriptorFile objects = DescriptorFileHeader.open(parameters.require("objects"));
+			DescriptorFile objects = DescriptorFileFactory.open(parameters.require("objects"), false);
 			String[] metricNames = parameters.require("metric").split(",");
-			Metric[] metrics = new Metric[metricNames.length];
+			MetricSpace[] metricSpaces = new MetricSpace[metricNames.length];
 			
 			for (int i = 0; i < metricNames.length; i++) {
-				metrics[i] = Metrics.getMetric(metricNames[i]);
+				metricSpaces[i] = objects.getMetricSpace(metricNames[i]);
 			}
 			
 			List<ImagePair> pairs = getImagePairs();
@@ -50,16 +48,10 @@ public class CalculateDistancesCommand implements Command {
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"), metricNames);
 			
 			for (ImagePair pair: pairs) {
-				Descriptor x = objects.get(pair.getImage1());
-				Descriptor y = objects.get(pair.getImage2());
+				double[] distances = new double[metricSpaces.length];
 				
-				if (x == null || y == null)
-					continue;
-				
-				double[] distances = new double[metrics.length];
-				
-				for (int i = 0; i < metrics.length; i++) {
-					distances[i] = metrics[i].getDistance(x, y);
+				for (int i = 0; i < metricSpaces.length; i++) {
+					distances[i] = metricSpaces[i].getDistance(pair.getImage1(), pair.getImage2());
 				}
 				
 				writer.write(pair.getImage1(), pair.getImage2(), distances);

@@ -8,16 +8,16 @@ package metricspaces.descriptors;
  */
 public class ByteDescriptor extends DoubleDescriptor {
 	private byte[] byteData;
-	private ByteDescriptorContext context;
+	private QuantisedDescriptorContext context;
 
 	
-	public ByteDescriptor(byte[] data, ByteDescriptorContext context) {
+	public ByteDescriptor(byte[] data, QuantisedDescriptorContext context) {
 		this.byteData = data;
 		this.context = context;
 	}
 	
 	
-	public ByteDescriptor(double[] data, ByteDescriptorContext context) {
+	public ByteDescriptor(double[] data, QuantisedDescriptorContext context) {
 		super(data);
 		this.context = context;
 		this.byteData = context.getByteData(data);
@@ -91,7 +91,7 @@ public class ByteDescriptor extends DoubleDescriptor {
 	}
 	
 	
-	public ByteDescriptorContext getContext() {
+	public QuantisedDescriptorContext getContext() {
 		return context;
 	}
 	

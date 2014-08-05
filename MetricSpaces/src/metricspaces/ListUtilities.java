@@ -104,4 +104,20 @@ public class ListUtilities {
 		
 		return list;
 	}
+	
+	
+	/**
+	 * Creates a list of integers.
+	 * @param from The number to start at (inclusive).
+	 * @param to The number to end at (exclusive).
+	 * @return
+	 */
+	public static List<Integer> range(int from, int to) {
+		List<Integer> list = new ArrayList<>(to - from);
+		
+		for (int i = from; i < to; i++)
+			list.add(i);
+		
+		return list;
+	}
 }

@@ -3,7 +3,7 @@ package ndi.extractors.pdna;
 import java.awt.image.BufferedImage;
 
 import metricspaces.descriptors.ByteDescriptor;
-import metricspaces.descriptors.ByteDescriptorContext;
+import metricspaces.descriptors.QuantisedDescriptorContext;
 import metricspaces.descriptors.Descriptor;
 import ndi.extractors.DescriptorExtractor;
 
@@ -16,10 +16,10 @@ import ndi.extractors.DescriptorExtractor;
 public class PdnaExtractor implements DescriptorExtractor {
     private double level1Width, level1Height, level2Width, level2Height;
     private Histogram[] level0, level1, level2;
-    private ByteDescriptorContext context;
+    private QuantisedDescriptorContext context;
     
     public PdnaExtractor() {
-    	context = new ByteDescriptorContext(1, 63 * 255);
+    	context = new QuantisedDescriptorContext(1, 63 * 255);
     }
 
     @Override

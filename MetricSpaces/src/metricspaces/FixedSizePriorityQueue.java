@@ -45,6 +45,10 @@ public class FixedSizePriorityQueue<E> extends AbstractQueue<E> {
 				pos = -pos - 1;
 			}
 			else {
+				//check if the item being inserted is the same as the one found
+				//allows equals to be inconsistent with compareTo 
+				if (e.equals(items[pos])) return true;
+				
 				//insert ties after, might get to do less work
 				pos += 1;
 			}
@@ -122,5 +126,17 @@ public class FixedSizePriorityQueue<E> extends AbstractQueue<E> {
 	@Override
 	public int size() {
 		return end - start;
+	}
+	
+	/**
+	 * Gets the item at the final position of the queue.  Note that if the queue is not full,
+	 * this will return null.
+	 * @return
+	 */
+	public E getEnd() {
+		if (size() < items.length)
+			return null;
+		else
+			return items[items.length - 1];
 	}
 }

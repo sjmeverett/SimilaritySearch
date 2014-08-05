@@ -12,7 +12,7 @@ package metricspaces.descriptors;
  * @author stewart
  *
  */
-public class ByteDescriptorContext {
+public class QuantisedDescriptorContext {
 	private int l1norm;
 	private double elementMax;
 	public double[] logTable, valueTable, normalisedTable;
@@ -25,7 +25,7 @@ public class ByteDescriptorContext {
 	 * @param l1norm Either a value indicating the value that all the descriptors sum to, or NOT_NORMALISED to indicate
 	 * that the descriptors are not normalised.
 	 */
-	public ByteDescriptorContext(double elementMax, int l1norm) {
+	public QuantisedDescriptorContext(double elementMax, int l1norm) {
 		this.elementMax = elementMax;
 		this.l1norm = l1norm;
 		

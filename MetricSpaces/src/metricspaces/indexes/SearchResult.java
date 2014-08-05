@@ -63,6 +63,25 @@ public class SearchResult implements Comparable<SearchResult> {
     public double getDistance() {
         return distance;
     }
+    
+    
+    /**
+     * Sets the distance from the query object to the result object.
+     * @param distance
+     * @return
+     */
+    public void setDistance(double distance) {
+    	this.distance = distance;
+    }
+    
+    
+    /**
+     * Sets the ID of the query object.
+     * @param query
+     */
+    public void setQuery(Integer query) {
+    	this.query = query;
+    }
 
 
     @Override

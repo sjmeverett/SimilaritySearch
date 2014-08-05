@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import metricspaces.descriptors.ByteDescriptor;
-import metricspaces.descriptors.ByteDescriptorContext;
+import metricspaces.descriptors.QuantisedDescriptorContext;
 import metricspaces.descriptors.Descriptor;
 
 /**
@@ -16,7 +16,7 @@ public class ByteDescriptorFile implements DescriptorFile {
 	private DescriptorFileHeader header;
 	private final ByteBuffer buffer;
 	private final int dataOffset, dimensions, capacity, recordSize;
-	private final ByteDescriptorContext descriptorContext;
+	private final QuantisedDescriptorContext descriptorContext;
 	
 	public ByteDescriptorFile(DescriptorFileHeader header) {
 		this.header = header;
@@ -27,7 +27,7 @@ public class ByteDescriptorFile implements DescriptorFile {
 		
 		double elementMax = buffer.getDouble();
 		int l1norm = buffer.getInt();
-		descriptorContext = new ByteDescriptorContext(elementMax, l1norm);
+		descriptorContext = new QuantisedDescriptorContext(elementMax, l1norm);
 		
 		dataOffset = buffer.position();
 	}
@@ -44,7 +44,7 @@ public class ByteDescriptorFile implements DescriptorFile {
 		ByteBuffer b = header.getBuffer();
 		b.putDouble(elementMax);
 		b.putInt(l1norm);
-		descriptorContext = new ByteDescriptorContext(elementMax, l1norm);
+		descriptorContext = new QuantisedDescriptorContext(elementMax, l1norm);
 		
 		dataOffset = b.position();
 		header.resize(dataOffset + recordSize * capacity);

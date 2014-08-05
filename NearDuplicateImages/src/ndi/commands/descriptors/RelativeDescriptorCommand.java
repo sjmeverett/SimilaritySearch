@@ -3,16 +3,8 @@ package ndi.commands.descriptors;
 import java.io.IOException;
 
 import metricspaces.Progress;
-import metricspaces.files.CornerSelector;
-import metricspaces.files.DescriptorFile;
-import metricspaces.files.DescriptorFileHeader;
-import metricspaces.files.FirstNSelector;
-import metricspaces.files.MaxDistanceSelector;
-import metricspaces.files.ReferencePointSelector;
-import metricspaces.files.RelativeDescriptorFile;
-import metricspaces.files.UnitSelector;
-import metricspaces.metrics.Metric;
-import metricspaces.metrics.Metrics;
+import metricspaces.update.common.LargeBinaryFile;
+import metricspaces.update.relative.RelativeDescriptorFile;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -39,47 +31,23 @@ public class RelativeDescriptorCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			String inputPath = parameters.require("input");
-			DescriptorFile input = DescriptorFileHeader.open(inputPath);
-			
-			String outputPath = parameters.require("output");
 			int referencePointCount = parameters.getInt("referencePointCount");
-			
-			DescriptorFileHeader header = new DescriptorFileHeader(outputPath, DescriptorFileHeader.RELATIVE_TYPE,
-				input.getCapacity(), referencePointCount, input.getHeader().getDescriptorName() + "Relative" + referencePointCount);
-			
-			Metric metric = Metrics.getMetric(parameters.require("metric"));
+			String inputPath = parameters.require("input");
+			String metricName = parameters.require("metric");
 			String selectorName = parameters.require("selector");
-			ReferencePointSelector selector;
+			String outputPath = parameters.require("output");
 			
-			if (selectorName.equals("firstn")) {
-				selector = new FirstNSelector();
-			}
-			else if (selectorName.equals("unit")) {
-				selector = new UnitSelector();
-			}
-			else if (selectorName.equals("max")) {
-				selector = new MaxDistanceSelector(parameters.getInt("size", 10000));
-			}
-			else if (selectorName.equals("corner")) {
-				selector = new CornerSelector();
-			}
-			else throw new ParameterException("selector not recognised");
-			
-			RelativeDescriptorFile output = new RelativeDescriptorFile(header, input, metric, selector, progress);
+			LargeBinaryFile outputFile = new LargeBinaryFile(outputPath, true);
+			RelativeDescriptorFile output = new RelativeDescriptorFile(outputFile, inputPath, metricName, selectorName, referencePointCount);
 			
 			output.copy(progress);
 			
 			reporter.stop();
 			output.close();
 		}
-		catch (ParameterException ex) {
+		catch (IOException | ParameterException ex) {
 			reporter.stop();
 			System.out.println(ex.getMessage());
-		} 
-		catch (IOException ex) {
-			reporter.stop();
-			System.out.println("Error reading or writing files: " + ex.getMessage());
 		}
 	}
 
@@ -95,10 +63,8 @@ public class RelativeDescriptorCommand implements Command {
 		parameters.describe("output", "The path to the file to copy the descriptors to.");
 		parameters.describe("referencePointCount", "The number of reference points to use when creating the relative points.");
 		parameters.describe("metric", "The metric to use.");
-		parameters.describe("selector", "The reference point selector to use: 'firstn' to use the first points in the original "
-				+ "file, 'unit' to generate unit points, 'max' to calculate the points furthest away from each other, "
-				+ "or 'corner' to use points like [(0,0,0,0,...), (0,1,0,0,...), (0,1,1,0,...), ...]");
-		parameters.describe("size", "For 'max' selector: the number of points to check as candidate reference points.");
+		parameters.describe("selector", "The reference point selector to use: 'sequential' to use the first n points in the original "
+				+ "file, or 'corner' to use points like [(0,0,0,0,...), (0,1,0,0,...), (0,1,1,0,...), ...]");
 		
 		return "Creates a relative descriptor file from an existing descriptor file.";
 	}

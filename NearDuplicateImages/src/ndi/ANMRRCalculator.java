@@ -161,7 +161,7 @@ public class ANMRRCalculator {
 		
 		double avr = acc / ng;
 		double nmrr = (avr - 0.5 * (1 + ng)) / (1.25 * k - 0.5 * (1 + ng));
-		System.err.printf("%d, %f\n", query, nmrr);
+		//System.err.printf("%d, %f\n", query, nmrr);
 		return nmrr;
 	}
 	

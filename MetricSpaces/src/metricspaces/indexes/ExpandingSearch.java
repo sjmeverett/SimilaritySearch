@@ -19,7 +19,8 @@ import java.util.NoSuchElementException;
 public class ExpandingSearch {
 	private final Index index;
 	private final double increasingFactor;
-	private final List<Integer> queries;
+	private List<Integer> queries;
+	private List<Integer> subsequentQueries;
 	private double radius;
 	
 	
@@ -108,6 +109,6 @@ public class ExpandingSearch {
 	
 	
 	public boolean hasQueries() {
-		return queries.size() > 0;
+		return subsequentQueries.size() > 0;
 	}
 }

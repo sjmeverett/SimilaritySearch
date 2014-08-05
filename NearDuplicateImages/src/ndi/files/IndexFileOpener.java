@@ -7,6 +7,7 @@ import metricspaces.files.DescriptorFile;
 import metricspaces.files.DescriptorFileHeader;
 import metricspaces.indexes.Index;
 import metricspaces.indexes.IndexFileHeader;
+import metricspaces.indexes.ResultCollectorIndex;
 import metricspaces.indexes.SurrogateSpaceIndex;
 
 import commandline.ParameterException;
@@ -45,8 +46,12 @@ public class IndexFileOpener {
 		Index index = IndexFileHeader.open(path, progress);
 		
 		if (originalObjectsPath != null) {
+			if (!(index instanceof ResultCollectorIndex))
+				throw new ParameterException("Surrogate index must implement ResultCollectorIndex.");
+			
+			ResultCollectorIndex rcindex = (ResultCollectorIndex)index;
 			DescriptorFile originalObjects = DescriptorFileHeader.open(originalObjectsPath);
-			index = new SurrogateSpaceIndex(originalObjects, index);
+			index = new SurrogateSpaceIndex(originalObjects, rcindex);
 		}
 		
 		return index;

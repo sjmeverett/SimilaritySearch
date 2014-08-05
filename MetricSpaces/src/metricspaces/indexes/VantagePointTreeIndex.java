@@ -10,15 +10,18 @@ import metricspaces.ListUtilities;
 import metricspaces.Progress;
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
+import metricspaces.indexes.resultcollectors.ResultCollector;
+import metricspaces.indexes.resultcollectors.StandardResultCollector;
 import metricspaces.metrics.Metric;
 
-public class VantagePointTreeIndex implements Index {
+public class VantagePointTreeIndex implements ResultCollectorIndex {
 	private final IndexFileHeader header;
 	private final DescriptorFile objects;
 	private final Metric metric;
 	private final ByteBuffer buffer;
 	private final Progress progress;
 	private final int capacity, dataOffset;
+	private boolean optimise;
 	private int distanceCalculations;
 	
 	private static final int NODE_SIZE = 28;
@@ -31,6 +34,7 @@ public class VantagePointTreeIndex implements Index {
 		this.header = header;
 		this.objects = objects;
 		this.metric = metric;
+		this.optimise = true;
 		this.progress = progress;
 		capacity = header.getCapacity();
 		
@@ -39,6 +43,11 @@ public class VantagePointTreeIndex implements Index {
 		}
 		
 		buffer = header.getBuffer();
+	}
+	
+	
+	public void setOptimise(boolean value) {
+		optimise = value;
 	}
 	
 	
@@ -130,10 +139,10 @@ public class VantagePointTreeIndex implements Index {
 
 	@Override
 	public List<SearchResult> search(Descriptor query, double radius) {
-		List<SearchResult> results = new ArrayList<SearchResult>();
-        search(dataOffset, query, null, radius, results, Double.NaN);
+		StandardResultCollector results = new StandardResultCollector(radius);
+        search(dataOffset, query, null, results, Double.NaN);
 
-        return results;
+        return results.getResults();
     }
 	
 	
@@ -142,10 +151,10 @@ public class VantagePointTreeIndex implements Index {
 		int key = getKey(position);
 		Descriptor query = objects.get(key);
 		
-		List<SearchResult> results = new ArrayList<SearchResult>();
-        search(dataOffset, query, key, radius, results, Double.NaN);
+		StandardResultCollector results = new StandardResultCollector(radius);
+        search(dataOffset, query, key, results, Double.NaN);
         
-        return results;
+        return results.getResults();
 	}
 	
 	
@@ -154,9 +163,21 @@ public class VantagePointTreeIndex implements Index {
 		buffer.position(header.getDataOffset() + position * NODE_SIZE + 24);
 		return buffer.getInt();
 	}
+	
+	@Override
+	public void search(Descriptor query, ResultCollector collector) {
+		search(dataOffset, query, null, collector, Double.NaN);
+	}
+	
+	@Override
+	public void search(int position, ResultCollector collector) {
+		int key = getKey(position);
+		Descriptor query = objects.get(key);
+		search(dataOffset, query, null, collector, Double.NaN);
+	}
 
 
-    private void search(int offset, Descriptor query, Integer queryKey, double searchRadius, List<SearchResult> results, double parentToQueryDistance) {
+    private void search(int offset, Descriptor query, Integer queryKey, ResultCollector collector, double parentToQueryDistance) {
         //move the buffer position to the start of the node
         buffer.position(offset);
 
@@ -165,9 +186,11 @@ public class VantagePointTreeIndex implements Index {
         double parentToThisDistance = buffer.getDouble();
         int left = buffer.getInt();
         int right = buffer.getInt();
+        
+        double searchRadius = collector.getRadius();
 
         //check if we can skip a distance calculation using the triangle inequality
-        if (Double.isNaN(parentToQueryDistance)
+        if (!optimise || Double.isNaN(parentToQueryDistance)
             || Math.abs(parentToThisDistance - parentToQueryDistance) <= nodeRadius + searchRadius)
         {
             int objectID = buffer.getInt();
@@ -176,23 +199,26 @@ public class VantagePointTreeIndex implements Index {
 
             if (distance <= searchRadius) {
                 //this point is within the distance threshold to the query object, so add it to the results
-                results.add(new SearchResult(queryKey, objectID, distance));
+                collector.add(new SearchResult(queryKey, objectID, distance));
+                
+                //update the search radius in case the add changed it
+                searchRadius = collector.getRadius();
             }
 
             if (left != 0 && distance <= nodeRadius + searchRadius) {
                 //points within a distance threshold to the query object could be inside the radius,
                 //so search the left subtree
-                search(left, query, queryKey, searchRadius, results, distance);
+                search(left, query, queryKey, collector, distance);
             }
 
             if (right != 0 && distance >= nodeRadius - searchRadius) {
                 //points within a distance threshold to the query object could be outside the radius,
                 //so search the right subtree
-                search(right, query, queryKey, searchRadius, results, distance);
+                search(right, query, queryKey, collector, distance);
             }
         }
         else if (right != 0) {
-            search(right, query, queryKey, searchRadius, results, Double.NaN);
+            search(right, query, queryKey, collector, Double.NaN);
         }
     }
 

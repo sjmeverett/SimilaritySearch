@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import metricspaces.Progress;
-import metricspaces.descriptors.Descriptor;
-import metricspaces.files.DescriptorFile;
-import metricspaces.indexes.Index;
 import metricspaces.indexes.SearchResult;
-import ndi.files.IndexFileOpener;
+import metricspaces.update.indices.Index;
+import metricspaces.update.indices.IndexFactory;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -17,13 +15,10 @@ import commandline.ProgressReporter;
 
 public class SearchCommand implements Command {
 	private Parameters parameters;
-	private IndexFileOpener indexOpener;
-
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		indexOpener = new IndexFileOpener(parameters);
 	}
 
 	@Override
@@ -32,12 +27,10 @@ public class SearchCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			Index index = indexOpener.open(progress);
-			DescriptorFile objects = index.getObjects();
+			Index index = IndexFactory.open(parameters.require("index"), false, progress);
 			double radius = parameters.getDouble("radius", Double.NaN);
 			
-			Descriptor query = objects.get(parameters.getInt("query"));
-			List<SearchResult> results = index.search(query, radius);
+			List<SearchResult> results = index.search(parameters.getInt("query"), radius);
 			
 			reporter.stop();
 			System.out.println("Found " + results.size() + " results:");
@@ -60,7 +53,7 @@ public class SearchCommand implements Command {
 	public String describe() {
 		parameters.describe("radius", "The search radius to use.");
 		parameters.describe("query", "The ID of the image to search for.");
-		indexOpener.describe();
+		parameters.describe("index", "The index to use.");
 		return "Searches the given index for the specified image and returns the results.";
 	}
 }

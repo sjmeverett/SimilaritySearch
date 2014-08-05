@@ -15,7 +15,7 @@ public class DivergenceCalculator {
 		double[] entropy = new double[dimensions];
 		
 		for (Descriptor descriptor: descriptors) {
-			double[] data = descriptor.getData();
+			double[] data = descriptor.getNormalisedData();
 			
 			for (int i = 0; i < data.length; i++) {
 				merged[i] += data[i];

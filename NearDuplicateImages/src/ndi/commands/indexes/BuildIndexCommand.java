@@ -5,13 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import metricspaces.Progress;
-import metricspaces.files.DescriptorFile;
-import metricspaces.files.DescriptorFileHeader;
-import metricspaces.indexes.Index;
-import metricspaces.metrics.Metric;
-import ndi.MetricLoader;
+import metricspaces.update.indices.Index;
+import metricspaces.update.indices.VantagePointTreeIndex;
 import ndi.files.IdFileReader;
-import ndi.files.IndexFileCreator;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -20,14 +16,10 @@ import commandline.ProgressReporter;
 
 public class BuildIndexCommand implements Command {
 	private Parameters parameters;
-	private IndexFileCreator indexCreator;
-	private MetricLoader metricLoader;
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		indexCreator = new IndexFileCreator(parameters);
-		metricLoader = new MetricLoader(parameters);
 	}
 
 	@Override
@@ -36,10 +28,22 @@ public class BuildIndexCommand implements Command {
 		ProgressReporter reporter = new ProgressReporter(progress, 250);
 		
 		try {
-			String descriptorPath = parameters.require("objects");
+			//create the new index file
+			String indexImplementation = parameters.require("indexImplementation");
 			String indexPath = parameters.require("output");
+			String descriptorPath = parameters.require("objects");
+			String metricName = parameters.require("metric");
+			int count = parameters.getInt("count", -1);
+			Index index;
 			
-			DescriptorFile objects = DescriptorFileHeader.open(descriptorPath);
+			if (indexImplementation.equals("VP")) {
+				index = new VantagePointTreeIndex(indexPath, count, descriptorPath, metricName, progress);
+			}
+			else {
+				throw new ParameterException("unrecognised index implementation");
+			}
+			
+			//determine which descriptors to add to the index
 			String idsPath = parameters.get("ids");
 			List<Integer> ids;
 			
@@ -48,15 +52,14 @@ public class BuildIndexCommand implements Command {
 				ids = reader.read();
 			}
 			else {
-				ids = new ArrayList<>(objects.getCapacity());
+				if (count == -1) count = index.getDescriptors().getSize();
+				ids = new ArrayList<>(count);
 				
-				for (int i = 0; i < objects.getCapacity(); i++)
+				for (int i = 0; i < count; i++)
 					ids.add(i);
 			}
 			
-			Metric metric = metricLoader.getMetric(objects.getHeader());
-			Index index = indexCreator.create(indexPath, objects, metric, ids.size(), progress);
-			
+			//build the index
 			index.build(ids);
 			index.close();
 			reporter.stop();
@@ -78,8 +81,9 @@ public class BuildIndexCommand implements Command {
 		parameters.describe("output", "The path to write the index file to.");
 		parameters.describe("ids", "The path to the file containing the list of IDs to store in the index.  Omit to use all "
 				+ "of the objects in the descriptor file.");
-		indexCreator.describe();
-		metricLoader.describe();
+		parameters.describe("count", "Use this parameter to include a fixed number of points in the index.");
+		parameters.describe("metric", "The metric to use.");
+		parameters.describe("indexImplementation", "The index implentation to use.");
 		return "Builds a new index file.";
 	}
 

@@ -219,6 +219,26 @@ public class ExtremePivotsIndex implements Index {
     }
     
     
+    /**
+     * Get the pivot indices used by the object at the specified position.
+     * @param position
+     * @return
+     */
+    public int[] getPivots(int position) {
+    	int[] pivots = new int[numberOfGroups];
+    	//move the buffer to the right position
+    	getKey(position);
+    	
+    	for (int i = 0; i < pivots.length; i++) {
+    		pivots[i] = buffer.getInt();
+    		//toss the distance - don't need it
+    		buffer.getDouble();
+    	}
+    	
+    	return pivots;
+    }
+    
+    
     @Override
     public int getKey(int position) {
     	buffer.position(tableOffset + position * recordSize);

@@ -5,8 +5,10 @@ import java.util.Random;
 
 import metricspaces.Progress;
 import metricspaces.descriptors.DoubleDescriptor;
-import metricspaces.files.DescriptorFile;
-import ndi.files.DescriptorFileCreator;
+import metricspaces.update._double.DoubleDescriptorFile;
+import metricspaces.update.common.DescriptorFile;
+import metricspaces.update.common.DescriptorFormat;
+import metricspaces.update.common.LargeBinaryFile;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -15,13 +17,11 @@ import commandline.ProgressReporter;
 
 public class RandomDescriptorCommand implements Command {
 	private Parameters parameters;
-	private DescriptorFileCreator loader;
 	
 	
 	@Override
 	public void init(Parameters parameters) {
 		this.parameters = parameters;
-		loader = new DescriptorFileCreator(parameters);
 	}
 
 	@Override
@@ -32,7 +32,11 @@ public class RandomDescriptorCommand implements Command {
 		try {
 			int count = parameters.getInt("count");
 			int dimensions = parameters.getInt("dimensions");
-			DescriptorFile objects = loader.create(parameters.require("out"), count, dimensions, "Random" + dimensions);
+			
+			DoubleDescriptorFile output = new DoubleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			DescriptorFormat<DoubleDescriptor> outputFormat = output.getFormat();
+			output.writeHeader(DescriptorFile.DOUBLE_TYPE, count, dimensions, "Random" + dimensions);
+			
 			Random random = new Random();
 			
 			progress.setOperation("Generating", count);
@@ -43,7 +47,7 @@ public class RandomDescriptorCommand implements Command {
 				for (int j = 0; j < dimensions; j++)
 					data[j] = random.nextDouble();
 				
-				objects.put(new DoubleDescriptor(data));
+				outputFormat.put(new DoubleDescriptor(data));
 				progress.incrementDone();
 			}
 			
@@ -66,7 +70,6 @@ public class RandomDescriptorCommand implements Command {
 		parameters.describe("count", "The number of descriptors to create in the file.");
 		parameters.describe("dimensions", "The number of dimensions of the random descriptor.");
 		parameters.describe("out", "The path of the descriptor file to create.");
-		loader.describe();
 		return "Randomly generates a descriptor file with the specified size and dimensions."; 
 	}
 

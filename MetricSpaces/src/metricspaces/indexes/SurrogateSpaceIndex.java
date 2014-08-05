@@ -1,23 +1,26 @@
 package metricspaces.indexes;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import metricspaces.descriptors.Descriptor;
 import metricspaces.files.DescriptorFile;
 import metricspaces.files.RelativeDescriptorFile;
+import metricspaces.indexes.resultcollectors.ResultCollector;
+import metricspaces.indexes.resultcollectors.StandardResultCollector;
+import metricspaces.indexes.resultcollectors.SurrogateResultCollector;
 import metricspaces.metrics.ChebyshevMetric;
+import metricspaces.metrics.Metric;
 import metricspaces.metrics.Metrics;
 
-public class SurrogateSpaceIndex implements Index {
+public class SurrogateSpaceIndex implements ResultCollectorIndex {
 	private final DescriptorFile originalObjects;
-	private final Index surrogateIndex;
+	private final ResultCollectorIndex surrogateIndex;
 	private final RelativeDescriptorFile surrogateObjects;
 	private final ChebyshevMetric metric;
 	
 	
-	public SurrogateSpaceIndex(DescriptorFile originalObjects, Index surrogateIndex) throws IOException {
+	public SurrogateSpaceIndex(DescriptorFile originalObjects, ResultCollectorIndex surrogateIndex) throws IOException {
 		this.originalObjects = originalObjects;
 		this.surrogateIndex = surrogateIndex;
 		
@@ -40,32 +43,70 @@ public class SurrogateSpaceIndex implements Index {
 	@Override
 	public List<SearchResult> search(Descriptor query, double radius) {
 		Descriptor surrogateQuery = surrogateObjects.getRelativeDescriptor(query);
-		return search(query, surrogateQuery, radius, radius);
+		return search(query, surrogateQuery, null, radius, radius);
 	}
 
 	@Override
 	public List<SearchResult> search(int position, double radius) {
-		return search(originalObjects.get(position), surrogateObjects.get(position), radius, radius);
+		return search(originalObjects.get(position), surrogateObjects.get(position), null, radius, radius);
+	}
+	
+	@Override
+	public void search(Descriptor query, ResultCollector collector) {
+		search(collector, query, surrogateObjects.getRelativeDescriptor(query), null, collector.getRadius(), null);
+	}
+	
+	@Override
+	public void search(int position, ResultCollector collector) {
+		Descriptor query = originalObjects.get(position);
+		search(collector, query, surrogateObjects.getRelativeDescriptor(query), position, collector.getRadius(), null);
+	}
+	
+	
+	public void search(Descriptor query, ResultCollector collector, double surrogateRadius) {
+		search(collector, query, surrogateObjects.getRelativeDescriptor(query), null, collector.getRadius(), surrogateRadius);
+	}
+	
+	public void search(int position, ResultCollector collector, double surrogateRadius) {
+		search(collector, originalObjects.get(position), surrogateObjects.get(position), position, collector.getRadius(), surrogateRadius);
 	}
 	
 	
 	public List<SearchResult> search(int position, double radius, double surrogateRadius) {
-		return search(originalObjects.get(position), surrogateObjects.get(position), radius, surrogateRadius);
+		return search(originalObjects.get(position), surrogateObjects.get(position), position, radius, surrogateRadius);
 	}
 	
 	
-	private List<SearchResult> search(Descriptor query, Descriptor surrogateQuery, double radius, double surrogateRadius) {
+	public List<SearchResult> search(Descriptor query, double radius, double surrogateRadius) {
+		return search(query, surrogateObjects.getRelativeDescriptor(query), null, radius, surrogateRadius);
+	}
+	
+	public List<SearchResult> searchSurrogate(Descriptor query, double surrogateRadius) {
+		return search(query, surrogateObjects.getRelativeDescriptor(query), null, Double.POSITIVE_INFINITY, surrogateRadius);
+	}
+	
+	
+	public List<SearchResult> searchSurrogate(int position, double surrogateRadius) {
+		return search(originalObjects.get(position), surrogateObjects.get(position), position, Double.POSITIVE_INFINITY, surrogateRadius);
+	}
+	
+	
+	private List<SearchResult> search(Descriptor query, Descriptor surrogateQuery, Integer queryId, double radius, double surrogateRadius) {
+		StandardResultCollector collector = new StandardResultCollector(radius);
+		
 		metric.setThreshold(surrogateRadius);
+		search(collector, query, surrogateQuery, queryId, radius, surrogateRadius);
 		
-		List<SearchResult> results = surrogateIndex.search(surrogateQuery, surrogateRadius);
-		List<SearchResult> filteredResults = new ArrayList<SearchResult>();
+		return collector.getResults();
+	}
+	
+	private void search(ResultCollector collector, Descriptor query, Descriptor surrogateQuery, Integer queryId,
+			double radius, Double surrogateRadius) {
 		
-		for (SearchResult result: results) {
-			if (surrogateObjects.getDistance(query, result.getResult()) <= radius)
-				filteredResults.add(result);
-		}
+		SurrogateResultCollector surrogateCollector = new SurrogateResultCollector(collector, radius, surrogateRadius,
+			originalObjects, surrogateObjects, query, queryId);
 		
-		return filteredResults;
+		surrogateIndex.search(surrogateQuery, surrogateCollector);
 	}
 
 	@Override
@@ -102,4 +143,13 @@ public class SurrogateSpaceIndex implements Index {
 		throw new UnsupportedOperationException("No header associated with this type of index.");
 	}
 
+	
+	public ResultCollectorIndex getSurrogateIndex() {
+		return surrogateIndex;
+	}
+	
+	
+	public Metric getMetric() {
+		return surrogateObjects;
+	}
 }
