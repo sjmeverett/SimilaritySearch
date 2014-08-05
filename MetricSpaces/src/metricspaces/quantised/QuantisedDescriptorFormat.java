@@ -19,19 +19,7 @@ public class QuantisedDescriptorFormat extends ByteDescriptorFormat<QuantisedDes
 	}
 
 	@Override
-	public QuantisedDescriptor get(int index) {
-		position(index);
-		return get();
-	}
-
-	@Override
 	public void put(QuantisedDescriptor descriptor) {
 		putBytes(descriptor.getData());
-	}
-
-	@Override
-	public void put(int index, QuantisedDescriptor descriptor) {
-		position(index);
-		put(descriptor);
 	}
 }

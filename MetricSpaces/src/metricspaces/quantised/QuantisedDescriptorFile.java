@@ -24,7 +24,7 @@ public class QuantisedDescriptorFile extends AbstractDescriptorFile<QuantisedDes
 		dataOffset = buffer.position();
 		
 		ByteBuffer byteBuffer = file.channel.map(file.isWritable() ? MapMode.READ_WRITE : MapMode.READ_ONLY,
-				dataOffset, dimensions * size * 8);
+				dataOffset, dimensions * size);
 		
 		format = new QuantisedDescriptorFormat(byteBuffer, dimensions, size, descriptorContext);
 	}

@@ -19,21 +19,6 @@ public interface MetricSpace {
 	public double getDistance(int x, int y);
 	
 	/**
-	 * GEts the distance between the two specified objects.
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	public double getDistance(Object x, Object y);
-	
-	/**
-	 * Gets the distance between the specified object and a randomly generated one, if supported.
-	 * @param id
-	 * @return
-	 */
-	public double getDistance(int id);
-	
-	/**
 	 * Gets the object with the specified ID.
 	 * @param id
 	 * @return

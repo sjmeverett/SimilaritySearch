@@ -25,6 +25,20 @@ public abstract class ByteDescriptorFormat<DescriptorType> implements Descriptor
 	}
 	
 	
+	@Override
+	public DescriptorType get(int index) {
+		position(index);
+		return get();
+	}
+	
+	
+	@Override
+	public void put(int index, DescriptorType descriptor) {
+		position(index);
+		put(descriptor);
+	}
+	
+	
 	protected byte[] getBytes() {
 		byte[] data = new byte[dimensions];
 		buffer.get(data);

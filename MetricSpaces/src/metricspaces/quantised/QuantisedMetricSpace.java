@@ -32,7 +32,7 @@ public class QuantisedMetricSpace extends AbstractMetricSpace<QuantisedDescripto
 		Metric<QuantisedDescriptor> metric = getMetrics().get(name);
 		
 		if (metric == null)
-			throw new IllegalArgumentException("Metric " + name + " is not known in the single metric space");
+			throw new IllegalArgumentException("Metric " + name + " is not known in the quantised metric space");
 		else
 			return metric;
 	}
@@ -44,24 +44,5 @@ public class QuantisedMetricSpace extends AbstractMetricSpace<QuantisedDescripto
 	 */
 	public QuantisedMetricSpace(AbstractDescriptorFile<QuantisedDescriptor> descriptors, String metricName) {
 		super(descriptors, metricName, getMetric(metricName));
-	}
-
-	
-	@Override
-	public double getDistance(int id) {
-		QuantisedDescriptor x = format.get(id);
-		//generate y
-		return 0;
-	}
-
-	
-	@Override
-	public double getDistance(Object x, Object y) {
-		if (x instanceof QuantisedDescriptor && y instanceof QuantisedDescriptor) {
-			return metric.getDistance((QuantisedDescriptor)x, (QuantisedDescriptor)y);
-		}
-		else {
-			throw new UnsupportedOperationException("Either x or y is not in the quantised space.");
-		}
 	}
 }

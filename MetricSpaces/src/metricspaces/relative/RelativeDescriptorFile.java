@@ -107,22 +107,7 @@ public class RelativeDescriptorFile extends AbstractDescriptorFile<DoubleDescrip
 			
 		format = new DoubleDescriptorFormat(doubleBuffer, super.dimensions, super.size);
 	}
-	
-	
-	/**
-	 * Creates a descriptor composed of the distances between the given descriptor and the set of reference points.
-	 * @param original
-	 * @return
-	 */
-	public DoubleDescriptor getRelativeDescriptor(Object original) {
-		double[] data = new double[dimensions];
-		
-		for (int i = 0; i < dimensions; i++) {
-			data[i] = originalSpace.getDistance(original, referencePoints[i]);
-		}
-		
-		return new DoubleDescriptor(data);
-	}
+
 	
 	/**
 	 * Creates a descriptor composed of the distances between the given descriptor and the set of reference points.

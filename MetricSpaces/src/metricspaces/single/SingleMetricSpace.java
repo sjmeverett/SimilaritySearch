@@ -44,23 +44,4 @@ public class SingleMetricSpace extends AbstractMetricSpace<SingleDescriptor> {
 	public SingleMetricSpace(AbstractDescriptorFile<SingleDescriptor> descriptors, String metricName) {
 		super(descriptors, metricName, getMetric(metricName));
 	}
-
-	
-	@Override
-	public double getDistance(int id) {
-		SingleDescriptor x = format.get(id);
-		//generate y
-		return 0;
-	}
-
-	
-	@Override
-	public double getDistance(Object x, Object y) {
-		if (x instanceof SingleDescriptor && y instanceof SingleDescriptor) {
-			return metric.getDistance((SingleDescriptor)x, (SingleDescriptor)y);
-		}
-		else {
-			throw new UnsupportedOperationException("Either x or y is not in the quantised space.");
-		}
-	}
 }

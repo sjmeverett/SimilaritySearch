@@ -56,24 +56,6 @@ public class DoubleMetricSpace extends AbstractMetricSpace<DoubleDescriptor> {
 	public DoubleMetricSpace(AbstractDescriptorFile<DoubleDescriptor> descriptors, String metricName) {
 		super(descriptors, metricName, getMetric(metricName));
 	}
-
-	
-	@Override
-	public double getDistance(int id) {
-		DoubleDescriptor x = format.get(id);
-		//generate y
-		return 0;
-	}
-
-	@Override
-	public double getDistance(Object x, Object y) {
-		if (x instanceof DoubleDescriptor && y instanceof DoubleDescriptor) {
-			return metric.getDistance((DoubleDescriptor)x, (DoubleDescriptor)y);
-		}
-		else {
-			throw new UnsupportedOperationException("Either x or y is not in the double space.");
-		}
-	}
 	
 	
 	@Override
