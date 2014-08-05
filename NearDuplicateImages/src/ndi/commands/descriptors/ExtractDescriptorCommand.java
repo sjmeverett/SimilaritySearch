@@ -10,6 +10,8 @@ import ndi.extractors.DescriptorExtractor;
 import ndi.extractors.mpeg7.ColourStructureExtractor;
 import ndi.extractors.mpeg7.EdgeHistogramExtractor;
 import ndi.extractors.pdna.PhotoDnaExtractor;
+import ndi.extractors.phash.PhashExtractor;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -47,6 +49,9 @@ public class ExtractDescriptorCommand implements Command {
 			else if (descriptorName.equals("PDNA")) {
 				extractor = new PhotoDnaExtractor(outputPath, SIZE);
 			}
+			else if (descriptorName.equals("pHash")) {
+				extractor = new PhashExtractor(outputPath, SIZE);
+			}
 			else {
 				throw new ParameterException("Unrecognised descriptor name.");
 			}
@@ -76,7 +81,7 @@ public class ExtractDescriptorCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("descriptor", "The name of the descriptor to extract [CS, EH, PDNA].");
+		parameters.describe("descriptor", "The name of the descriptor to extract [CS, EH, PDNA, pHash].");
 		parameters.describe("output", "The path to the descriptor file to be created.");
 		parameters.describe("imagedir", "The path to the directory containing the images.");
 		return "Extracts the specified descriptor from the images.";

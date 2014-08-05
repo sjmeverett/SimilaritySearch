@@ -13,6 +13,7 @@ public interface DescriptorFile {
     public static final byte QUANTISED_TYPE = 1;
     public static final byte SINGLE_TYPE = 2;
     public static final byte RELATIVE_TYPE = 3;
+	public static final byte HASH_TYPE = 4;
     
     /**
      * Sets the header information for a new file, and writes it out to the file.

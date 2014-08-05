@@ -3,6 +3,7 @@ package metricspaces.hash;
 import java.util.Map;
 
 import metricspaces.descriptors.AbstractDescriptorFile;
+import metricspaces.hash.metrics.HammingDistanceMetric;
 import metricspaces.metrics.AbstractMetricSpace;
 import metricspaces.metrics.Metric;
 
@@ -15,7 +16,7 @@ public class HashMetricSpace extends AbstractMetricSpace<HashDescriptor> {
 	 */
 	public static Map<String, Metric<HashDescriptor>> getMetrics() {
 		if (metrics == null) {
-			
+			metrics.put("ham", new HammingDistanceMetric());
 		}
 		
 		return metrics;
