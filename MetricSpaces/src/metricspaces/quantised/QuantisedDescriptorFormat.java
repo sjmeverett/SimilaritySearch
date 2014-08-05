@@ -26,7 +26,7 @@ public class QuantisedDescriptorFormat extends ByteDescriptorFormat<QuantisedDes
 
 	@Override
 	public void put(QuantisedDescriptor descriptor) {
-		putBytes(descriptor.getBytes());
+		putBytes(descriptor.getData());
 	}
 
 	@Override

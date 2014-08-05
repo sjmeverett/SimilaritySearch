@@ -45,7 +45,7 @@ public class QuantisedDescriptorCommonFormat implements DescriptorFormat<DoubleD
 	
 	
 	private DoubleDescriptor toCommon(QuantisedDescriptor quantised) {
-		double[] data = context.getDoubleData(quantised.getBytes());
+		double[] data = context.getDoubleData(quantised.getData());
 		return new DoubleDescriptor(data);
 	}
 }

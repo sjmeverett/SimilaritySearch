@@ -55,7 +55,6 @@ public class DoubleDescriptor {
 		return normalisedData;
 	}
 
-	
 	public double getComplexity() {
 		if (Double.isNaN(complexity)) {
             double acc = 0;
@@ -74,7 +73,6 @@ public class DoubleDescriptor {
 
         return complexity;
 	}
-	
 	
 	public double getMergedComplexity(DoubleDescriptor descriptor) {
 		double[] x = getNormalisedData();

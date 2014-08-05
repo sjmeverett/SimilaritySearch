@@ -5,6 +5,7 @@ import java.util.Map;
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.metrics.AbstractMetricSpace;
 import metricspaces.metrics.Metric;
+import metricspaces.quantised.metrics.SEDByComplexityMetric;
 
 public class QuantisedMetricSpace extends AbstractMetricSpace<QuantisedDescriptor> {
 	
@@ -16,7 +17,7 @@ public class QuantisedMetricSpace extends AbstractMetricSpace<QuantisedDescripto
 	 */
 	public static Map<String, Metric<QuantisedDescriptor>> getMetrics() {
 		if (metrics == null) {
-			//add metrics
+			metrics.put("SED", new SEDByComplexityMetric());
 		}
 		
 		return metrics;
