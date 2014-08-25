@@ -64,9 +64,10 @@ public class GenericVantagePointList<DescriptorType> implements VantagePointList
 		
 		//swap everything less than the pivot to the left of the list
 		int left = start;
+		double pivotDistance = pivotValue.getDistance(vantagePointId, vantagePoint);
 		
 		for (int i = start; i < end; i++) {
-			if (objects.get(i).getDistance(vantagePointId, vantagePoint) < pivotValue.getDistance(vantagePointId, vantagePoint)) {
+			if (objects.get(i).getDistance(vantagePointId, vantagePoint) < pivotDistance) {
 				Collections.swap(objects, left, i);
 				left++;
 			}
@@ -81,16 +82,16 @@ public class GenericVantagePointList<DescriptorType> implements VantagePointList
 	@Override
 	public SearchResult quickSelect(int start, int end, int k, int vantagePointId) {
 		DescriptorType vantagePoint = descriptors.get(vantagePointId);
+		int pivot = start;
 		
 		while (end > start) {
 			//randomly select a pivot index and partition the list
-			int pivot = RandomHelper.getNextInt(start, end);
+			pivot = RandomHelper.getNextInt(start, end);
 			pivot = partition(start, pivot, end, vantagePointId, vantagePoint);
 
 			if (pivot == k) {
 				//the k-th element is the pivot, so is in its correct place
-				ObjectPointer ptr = objects.get(pivot);
-				return new SearchResult(ptr.getObjectID(), ptr.getDistance(vantagePointId, vantagePoint));
+				break;
 			}
 			else if (k < pivot) {
 				//the k-th element is to the left of the pivot
@@ -102,9 +103,10 @@ public class GenericVantagePointList<DescriptorType> implements VantagePointList
 			}
 		}
 		
-		//there is only one item in the list
-		ObjectPointer ptr = objects.get(start);
-		return new SearchResult(ptr.getObjectID(), ptr.getDistance(vantagePointId, vantagePoint));
+		
+		ObjectPointer ptr = objects.get(pivot);
+		double distance = ptr.getDistance(vantagePointId, vantagePoint);
+		return new SearchResult(ptr.getObjectID(), distance);
 	}
 	
 	
@@ -115,6 +117,7 @@ public class GenericVantagePointList<DescriptorType> implements VantagePointList
 
 	    public ObjectPointer(int objectID) {
 	        this.objectID = objectID;
+	        vantagePointId = -1;
 	    }
 
 	    public int getObjectID() {

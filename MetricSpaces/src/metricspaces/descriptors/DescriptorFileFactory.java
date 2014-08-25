@@ -3,6 +3,7 @@ package metricspaces.descriptors;
 import java.io.IOException;
 
 import metricspaces._double.DoubleDescriptorFile;
+import metricspaces.hash.HashDescriptorFile;
 import metricspaces.quantised.QuantisedDescriptorFile;
 import metricspaces.relative.RelativeDescriptorFile;
 import metricspaces.single.SingleDescriptorFile;
@@ -26,6 +27,9 @@ public class DescriptorFileFactory {
 			
 		case DescriptorFile.RELATIVE_TYPE:
 			return new RelativeDescriptorFile(file);
+			
+		case DescriptorFile.HASH_TYPE:
+			return new HashDescriptorFile(file);
 			
 		default:
 			throw new UnsupportedOperationException("Unsupported file type.");

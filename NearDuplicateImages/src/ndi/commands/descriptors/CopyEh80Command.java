@@ -9,8 +9,8 @@ import metricspaces.descriptors.CommonDescriptorFile;
 import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFileFactory;
 import metricspaces.descriptors.DescriptorFormat;
-import metricspaces.util.LargeBinaryFile;
 import metricspaces.util.Progress;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -42,9 +42,8 @@ public class CopyEh80Command implements Command {
 			DescriptorFormat<DoubleDescriptor> inputFormat = input.getCommonFormat();
 			int size = input.getSize();
 			
-			DoubleDescriptorFile output = new DoubleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			DoubleDescriptorFile output = new DoubleDescriptorFile(parameters.require("out"), size, 80, "Eh80");
 			DescriptorFormat<DoubleDescriptor> outputFormat = output.getFormat();
-			output.writeHeader(DescriptorFile.DOUBLE_TYPE, size, 80, "Eh80");
 			
 			progress.setOperation("Copying", size);
 			

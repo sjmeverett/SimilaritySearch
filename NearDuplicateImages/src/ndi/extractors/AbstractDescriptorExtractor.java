@@ -16,23 +16,10 @@ public abstract class AbstractDescriptorExtractor<DescriptorType> implements Des
 	protected AbstractDescriptorFile<DescriptorType> file;
 	protected DescriptorFormat<DescriptorType> format;
 	
-	
-	protected AbstractDescriptorExtractor(AbstractDescriptorFile<DescriptorType> file, int size, byte descriptorType, String descriptorName) throws IOException {
-		init(file, size, descriptorType, descriptorName);
-	}
-	
-	
-	protected AbstractDescriptorExtractor() {
-		
-	}
-	
-	
-	protected void init(AbstractDescriptorFile<DescriptorType> file, int size, byte descriptorType, String descriptorName) throws IOException {
+	protected void init(AbstractDescriptorFile<DescriptorType> file) {
 		this.file = file;
-		file.writeHeader(descriptorType, size, getDimensions(), descriptorName);
-		
-		format = file.getFormat();
-	}
+		this.format = file.getFormat();
+	}	
 	
 	@Override
 	public void save(BufferedImage image) {

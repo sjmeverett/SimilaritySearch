@@ -9,12 +9,11 @@ import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.single.SingleDescriptor;
 import metricspaces.single.SingleDescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import metricspaces.util.Progress;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -44,9 +43,8 @@ public class CopyGistCommand implements Command {
 		try {
 			File dir = new File(parameters.require("dir"));
 			
-			SingleDescriptorFile output = new SingleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			SingleDescriptorFile output = new SingleDescriptorFile(parameters.require("out"), COUNT, GIST_SIZE, "GIST");
 			DescriptorFormat<SingleDescriptor> outputFormat = output.getFormat();
-			output.writeHeader(DescriptorFile.SINGLE_TYPE, COUNT, GIST_SIZE, "GIST");
 			
 			progress.setOperation("Copying", COUNT);
 			float[] data = new float[GIST_SIZE];

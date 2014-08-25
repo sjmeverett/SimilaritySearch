@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel.MapMode;
 import metricspaces._double.DoubleDescriptor;
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.descriptors.CommonDescriptorFile;
+import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.metrics.MetricSpace;
 import metricspaces.util.LargeBinaryFile;
@@ -23,17 +24,14 @@ public class QuantisedDescriptorFile extends AbstractDescriptorFile<QuantisedDes
 		descriptorContext = new QuantisedDescriptorContext(elementMax, l1norm);
 		dataOffset = buffer.position();
 		
-		ByteBuffer byteBuffer = file.channel.map(file.isWritable() ? MapMode.READ_WRITE : MapMode.READ_ONLY,
+		ByteBuffer byteBuffer = file.channel.map(MapMode.READ_ONLY,
 				dataOffset, dimensions * size);
 		
 		format = new QuantisedDescriptorFormat(byteBuffer, dimensions, size, descriptorContext);
 	}
 	
-	public QuantisedDescriptorFile(LargeBinaryFile file, double elementMax, int l1Norm) throws IOException {
-		super(file);
-		
-		if (!file.isWritable())
-			throw new IllegalStateException("file must be writable for this constructor");
+	public QuantisedDescriptorFile(String path, int size, int dimensions, String descriptorName, double elementMax, int l1Norm) throws IOException {
+		super(path, DescriptorFile.QUANTISED_TYPE, size, dimensions, descriptorName);
 		
 		descriptorContext = new QuantisedDescriptorContext(elementMax, l1Norm);
 		buffer.putDouble(elementMax);

@@ -1,10 +1,16 @@
 package metricspaces.single;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.metrics.AbstractMetricSpace;
 import metricspaces.metrics.Metric;
+import metricspaces.single.metrics.ChebyshevMetric;
+import metricspaces.single.metrics.CosineAngularMetric;
+import metricspaces.single.metrics.EuclidianMetric;
+import metricspaces.single.metrics.ManhattanMetric;
+import metricspaces.single.metrics.SEDByComplexityMetric;
 
 public class SingleMetricSpace extends AbstractMetricSpace<SingleDescriptor> {
 	
@@ -16,7 +22,12 @@ public class SingleMetricSpace extends AbstractMetricSpace<SingleDescriptor> {
 	 */
 	public static Map<String, Metric<SingleDescriptor>> getMetrics() {
 		if (metrics == null) {
-			//add metrics
+			metrics = new HashMap<>();
+			metrics.put("Chebyshev", new ChebyshevMetric());
+			metrics.put("Cos", new CosineAngularMetric());
+			metrics.put("Euc", new EuclidianMetric());
+			metrics.put("Man", new ManhattanMetric());
+			metrics.put("SED", new SEDByComplexityMetric());
 		}
 		
 		return metrics;

@@ -53,7 +53,7 @@ public class NearestNeighbourCommand implements Command {
 					NearestNeighbourResultCollector collector = new NearestNeighbourResultCollector(i);
 					
 					surrogateIndex.search(i, collector, surrogateRadius);
-					writer.write(i, collector.getResult(), collector.getRadius());
+					writer.writeExactly(i, collector.getResult(), collector.getRadius());
 					progress.incrementDone();
 				}
 				

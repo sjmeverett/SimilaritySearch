@@ -12,8 +12,8 @@ import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.descriptors.TextDescriptorFile;
 import metricspaces.quantised.QuantisedDescriptorFile;
 import metricspaces.single.SingleDescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import metricspaces.util.Progress;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -92,30 +92,24 @@ public class CopyDescriptorsCommand implements Command {
 	
 	private CommonDescriptorFile create(String path, int size, int dimensions, String name) throws IOException, ParameterException {
 		String type = parameters.get("descriptorType");
-		LargeBinaryFile file = new LargeBinaryFile(path, true);
 		DescriptorFile output = null;
-		Byte descriptorType = 0;
 				
 		if (type.equals("double")) {
-			output = new DoubleDescriptorFile(file);
-			descriptorType = DescriptorFile.DOUBLE_TYPE;
+			output = new DoubleDescriptorFile(path, size, dimensions, name);
 		}
 		else if (type.equals("single")) {
-			output = new SingleDescriptorFile(file);
-			descriptorType = DescriptorFile.SINGLE_TYPE;
+			output = new SingleDescriptorFile(path, size, dimensions, name);
 		}
 		else if (type.equals("quantised")) {
 			double elementMax = parameters.getDouble("elementmax", 1);
 			int l1norm = parameters.getInt("l1norm", 0);
 			
-			output = new QuantisedDescriptorFile(file, elementMax, l1norm);
-			descriptorType = DescriptorFile.QUANTISED_TYPE;
+			output = new QuantisedDescriptorFile(path, size, dimensions, name, elementMax, l1norm);
 		}
 		else {
 			throw new ParameterException("unrecognised descriptor type");
 		}
 		
-		output.writeHeader(descriptorType, size, dimensions, name);
 		return (CommonDescriptorFile)output;
 	}
 

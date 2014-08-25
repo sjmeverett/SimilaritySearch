@@ -66,27 +66,27 @@ public class RelativeDescriptorFile extends AbstractDescriptorFile<DoubleDescrip
 	
 	/**
 	 * Constructor for creating a new file.
-	 * @param file The LargeBinaryFile object representing the file to create.
+	 * @param path The path to the file to create.
 	 * @param originalDescriptorsPath The path to the file containing the descriptors to make relative descriptors from.
 	 * @param metricName The name of the metric to use.
 	 * @param selectorName The name of the selector to use when selecting reference points.
 	 * @param dimensions The number of reference points to use.
 	 * @throws IOException
 	 */
-	public RelativeDescriptorFile(LargeBinaryFile file, String originalDescriptorsPath, String metricName, String selectorName, int dimensions) throws IOException {
-		super(file);
+	public RelativeDescriptorFile(String path, String originalDescriptorsPath, String metricName, String selectorName, int dimensions) throws IOException {
+		super(path, DescriptorFile.RELATIVE_TYPE);
 		
 		if (!file.isWritable())
 			throw new IllegalArgumentException("file must be writable");
 		
+		originalDescriptors = DescriptorFileFactory.open(originalDescriptorsPath, false);
+		originalSpace = originalDescriptors.getMetricSpace(metricName);
+		
+		writeHeader(originalDescriptors.getSize(), dimensions, originalDescriptors.getDescriptorName() + "Relative" + dimensions);
+		
 		file.putString(originalDescriptorsPath);
 		file.putString(metricName);
 		dataOffset = file.getBuffer().position();
-		
-		writeHeader(RELATIVE_TYPE, originalDescriptors.getSize(), dimensions, originalDescriptors.getDescriptorName() + "Relative" + dimensions);
-		
-		originalDescriptors = DescriptorFileFactory.open(originalDescriptorsPath, false);
-		originalSpace = originalDescriptors.getMetricSpace(metricName);
 		
 		//write the reference points
 		int referenceSize = (int)file.channel.size() - dataOffset;

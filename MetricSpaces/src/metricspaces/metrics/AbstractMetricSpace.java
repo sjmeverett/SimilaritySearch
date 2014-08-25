@@ -23,6 +23,7 @@ public abstract class AbstractMetricSpace<DescriptorType> implements MetricSpace
 		this.format = descriptors.getFormat();
 		this.metricName = metricName;
 		this.metric = metric;
+		cacheId = -1;
 	}
 	
 	@Override

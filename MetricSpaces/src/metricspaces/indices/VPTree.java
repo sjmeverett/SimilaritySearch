@@ -47,7 +47,7 @@ public class VPTree extends AbstractIndex implements ResultCollectorIndex {
 		this.optimise = true;
 		this.progress = progress;
 		
-		file.resize(dataOffset + size * NODE_SIZE);
+		file.resize(dataOffset + super.size * NODE_SIZE);
 	}
 	
 	

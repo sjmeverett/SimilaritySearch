@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
 import metricspaces.descriptors.AbstractDescriptorFile;
+import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.metrics.MetricSpace;
 import metricspaces.util.LargeBinaryFile;
@@ -15,11 +16,21 @@ public class HashDescriptorFile extends AbstractDescriptorFile<HashDescriptor> {
 	public HashDescriptorFile(LargeBinaryFile file) throws IOException {
 		super(file);
 		
-		ByteBuffer byteBuffer = file.channel.map(file.isWritable() ? MapMode.READ_WRITE : MapMode.READ_ONLY,
+		ByteBuffer byteBuffer = file.channel.map(MapMode.READ_ONLY,
 				dataOffset, dimensions * size);
 		
 		format = new HashDescriptorFormat(byteBuffer, dimensions, size);
 	}
+	
+	public HashDescriptorFile(String path, int size, int dimensions, String descriptorName) throws IOException {
+		super(path, DescriptorFile.HASH_TYPE, size, dimensions, descriptorName);
+		
+		ByteBuffer byteBuffer = file.channel.map(MapMode.READ_WRITE,
+				dataOffset, dimensions * size);
+		
+		format = new HashDescriptorFormat(byteBuffer, dimensions, size);
+	}
+	
 
 	@Override
 	public MetricSpace getMetricSpace(String metricName) {

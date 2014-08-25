@@ -22,45 +22,47 @@ public abstract class AbstractDescriptorFile<DescriptorType> implements Descript
      */
 	public AbstractDescriptorFile(LargeBinaryFile file) throws IOException {
 		this.file = file;
+		this.buffer = file.getBuffer();
 		
-		if (file.exists()) {
-			buffer = file.getBuffer();
-			buffer.position(0);
-	        descriptorType = buffer.get();
-	        size = buffer.getInt();
-	        dimensions = buffer.getInt();
-	        descriptorName = file.getString();
-	        
-	        //stats for quantisation-based metrics
-	        statsOffset = buffer.position();
-	        elementMean = buffer.getDouble();
-	        elementStdDev = buffer.getDouble();
-	        elementMax = buffer.getDouble();
-		}
-		
+		buffer.position(0);
+        descriptorType = buffer.get();
+        size = buffer.getInt();
+        dimensions = buffer.getInt();
+        descriptorName = file.getString();
+        
+        //stats for quantisation-based metrics
+        statsOffset = buffer.position();
+        elementMean = buffer.getDouble();
+        elementStdDev = buffer.getDouble();
+        elementMax = buffer.getDouble();
+
         //reserve space for future expansion of header
         dataOffset = HEADER_SIZE;
         buffer.position(dataOffset);
 	}
 	
 	
-	/**
-	 * Write the header information.
-	 * @param descriptorType
-	 * @param size
-	 * @param dimensions
-	 * @param descriptorName
-	 * @throws IOException
-	 */
-	@Override
-	public void writeHeader(byte descriptorType, int size, int dimensions, String descriptorName) throws IOException {
+	public AbstractDescriptorFile(String filename, byte descriptorType) throws IOException {
+		this.file = new LargeBinaryFile(filename, HEADER_SIZE * 2);
+		this.buffer = file.getBuffer();
 		this.descriptorType = descriptorType;
+		
+		buffer.position(0);
+		buffer.put(descriptorType);
+	}
+	
+	
+	public AbstractDescriptorFile(String filename, byte descriptorType, int size, int dimensions, String descriptorName) throws IOException {
+		this(filename, descriptorType);
+		writeHeader(size, dimensions, descriptorName);
+	}
+	
+	
+	protected void writeHeader(int size, int dimensions, String descriptorName) {
 		this.size = size;
 		this.dimensions = dimensions;
 		this.descriptorName = descriptorName;
 		
-		buffer.position(0);
-		buffer.put(descriptorType);
 		buffer.putInt(size);
 		buffer.putInt(dimensions);
 		file.putString(descriptorName);

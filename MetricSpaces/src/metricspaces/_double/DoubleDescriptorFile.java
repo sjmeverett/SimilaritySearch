@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel.MapMode;
 
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.descriptors.CommonDescriptorFile;
+import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.metrics.MetricSpace;
 import metricspaces.util.LargeBinaryFile;
@@ -27,7 +28,17 @@ public class DoubleDescriptorFile extends AbstractDescriptorFile<DoubleDescripto
 	public DoubleDescriptorFile(LargeBinaryFile file) throws IOException {
 		super(file);
 		
-		DoubleBuffer doubleBuffer = file.channel.map(file.isWritable() ? MapMode.READ_WRITE : MapMode.READ_ONLY,
+		DoubleBuffer doubleBuffer = file.channel.map(MapMode.READ_ONLY,
+			dataOffset, dimensions * size * 8).asDoubleBuffer();
+		
+		format = new DoubleDescriptorFormat(doubleBuffer, dimensions, size);
+	}
+	
+	
+	public DoubleDescriptorFile(String path, int size, int dimensions, String descriptorName) throws IOException {
+		super(path, DescriptorFile.DOUBLE_TYPE, size, dimensions, descriptorName);
+		
+		DoubleBuffer doubleBuffer = file.channel.map(MapMode.READ_WRITE,
 			dataOffset, dimensions * size * 8).asDoubleBuffer();
 		
 		format = new DoubleDescriptorFormat(doubleBuffer, dimensions, size);

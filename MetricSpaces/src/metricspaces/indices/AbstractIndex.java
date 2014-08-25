@@ -31,6 +31,7 @@ public abstract class AbstractIndex implements Index {
 		this.file = file;
 		
 		buffer = file.getBuffer();
+		buffer.position(0);
 		indexImplementation = buffer.get();
 		size = buffer.getInt();
 		dataOffset = HEADER_SIZE;
@@ -66,7 +67,7 @@ public abstract class AbstractIndex implements Index {
 	protected void writeHeader(String path, String descriptorPath, String metricName) throws IOException {
 		this.file = new LargeBinaryFile(path, true);
 		
-		ByteBuffer buffer = file.getBuffer();
+		buffer = file.getBuffer();
 		buffer.put(indexImplementation);
 		buffer.putInt(size);
 		file.putString(descriptorPath);

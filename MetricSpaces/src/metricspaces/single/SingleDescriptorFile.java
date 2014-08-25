@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel.MapMode;
 import metricspaces._double.DoubleDescriptor;
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.descriptors.CommonDescriptorFile;
+import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.metrics.MetricSpace;
 import metricspaces.util.LargeBinaryFile;
@@ -31,7 +32,19 @@ public class SingleDescriptorFile extends AbstractDescriptorFile<SingleDescripto
 		
 		recordSize = dimensions * 4;
 		
-		FloatBuffer floatBuffer = file.channel.map(file.isWritable() ? MapMode.READ_WRITE : MapMode.READ_ONLY,
+		FloatBuffer floatBuffer = file.channel.map(MapMode.READ_ONLY,
+			dataOffset, recordSize * size).asFloatBuffer();
+		
+		format = new SingleDescriptorFormat(floatBuffer, dimensions, size);
+	}
+	
+	
+	public SingleDescriptorFile(String path, int size, int dimensions, String descriptorName) throws IOException {
+		super(path, DescriptorFile.SINGLE_TYPE, size, dimensions, descriptorName);
+		
+		recordSize = dimensions * 4;
+		
+		FloatBuffer floatBuffer = file.channel.map(MapMode.READ_WRITE,
 			dataOffset, recordSize * size).asFloatBuffer();
 		
 		format = new SingleDescriptorFormat(floatBuffer, dimensions, size);

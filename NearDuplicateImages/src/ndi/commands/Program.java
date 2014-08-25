@@ -11,6 +11,7 @@ import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
 import ndi.commands.descriptors.RandomDescriptorCommand;
 import ndi.commands.descriptors.RelativeDescriptorCommand;
+import ndi.commands.descriptors.TimeExtractorCommand;
 import ndi.commands.indices.BuildIndexCommand;
 import ndi.commands.indices.NearestNeighbourCommand;
 import ndi.commands.indices.SearchAllCommand;
@@ -37,6 +38,7 @@ public class Program {
 		program.addCommand(new RandomDescriptorCommand());
 		program.addCommand(new RelativeDescriptorCommand());
 		program.addCommand(new NearestNeighbourCommand());
+		program.addCommand(new TimeExtractorCommand());
 		program.run(args);
 	}
 }

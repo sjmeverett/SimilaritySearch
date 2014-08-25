@@ -6,10 +6,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.IOException;
 
-import metricspaces.descriptors.DescriptorFile;
 import metricspaces.hash.HashDescriptor;
 import metricspaces.hash.HashDescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import ndi.extractors.AbstractDescriptorExtractor;
 
 /**
@@ -27,9 +25,13 @@ public class PhashExtractor extends AbstractDescriptorExtractor<HashDescriptor> 
 	private static final int DIMENSIONS = (int)Math.ceil(LENGTH / 8);
 
 	public PhashExtractor(String path, int size) throws IOException {
-		super(new HashDescriptorFile(new LargeBinaryFile(path, true)), size,
-				DescriptorFile.HASH_TYPE, "pHash");
-
+		HashDescriptorFile file = new HashDescriptorFile(path, size, getDimensions(), "pHash");
+		super.init(file);
+		colorConvert = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+		initCoefficients();
+	}
+	
+	public PhashExtractor() {
 		colorConvert = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
 		initCoefficients();
 	}
@@ -63,7 +65,7 @@ public class PhashExtractor extends AbstractDescriptorExtractor<HashDescriptor> 
 				b <<= 1;
 				
 				if (dctvals[index++] > average) {
-					b &= 1;
+					b |= 1;
 				}
 			}
 			

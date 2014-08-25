@@ -21,9 +21,17 @@ public class LargeBinaryFile {
     	this.path = path;
     	File f = new File(path);
     	exists = f.exists();
-		file = new RandomAccessFile(f, writable ? "rw" : "w");
-        channel = file.getChannel();
-        buffer = channel.map(writable ? MapMode.READ_WRITE : MapMode.READ_ONLY, 0, channel.size());
+		file = new RandomAccessFile(f, writable ? "rw" : "r");
+		channel = file.getChannel();
+		
+		long size;
+		if (!exists) {
+			size = 512;
+		} else {
+			size = channel.size();
+		}
+        
+        buffer = channel.map(writable ? MapMode.READ_WRITE : MapMode.READ_ONLY, 0, size);
         this.writable = writable;
     }
     

@@ -1,5 +1,6 @@
 package metricspaces.quantised;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import metricspaces.descriptors.AbstractDescriptorFile;
@@ -17,6 +18,7 @@ public class QuantisedMetricSpace extends AbstractMetricSpace<QuantisedDescripto
 	 */
 	public static Map<String, Metric<QuantisedDescriptor>> getMetrics() {
 		if (metrics == null) {
+			metrics = new HashMap<>();
 			metrics.put("SED", new SEDByComplexityMetric());
 		}
 		

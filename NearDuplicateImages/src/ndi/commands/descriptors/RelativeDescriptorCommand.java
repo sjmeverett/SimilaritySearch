@@ -3,8 +3,8 @@ package ndi.commands.descriptors;
 import java.io.IOException;
 
 import metricspaces.relative.RelativeDescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import metricspaces.util.Progress;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -36,9 +36,7 @@ public class RelativeDescriptorCommand implements Command {
 			String selectorName = parameters.require("selector");
 			String outputPath = parameters.require("output");
 			
-			LargeBinaryFile outputFile = new LargeBinaryFile(outputPath, true);
-			RelativeDescriptorFile output = new RelativeDescriptorFile(outputFile, inputPath, metricName, selectorName, referencePointCount);
-			
+			RelativeDescriptorFile output = new RelativeDescriptorFile(outputPath, inputPath, metricName, selectorName, referencePointCount);
 			output.copy(progress);
 			
 			reporter.stop();

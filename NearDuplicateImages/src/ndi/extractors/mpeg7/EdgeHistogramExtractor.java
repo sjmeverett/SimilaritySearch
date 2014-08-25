@@ -3,11 +3,9 @@ package ndi.extractors.mpeg7;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import ndi.extractors.AbstractDescriptorExtractor;
 import metricspaces._double.DoubleDescriptor;
 import metricspaces._double.DoubleDescriptorFile;
-import metricspaces.descriptors.DescriptorFile;
-import metricspaces.util.LargeBinaryFile;
+import ndi.extractors.AbstractDescriptorExtractor;
 
 /**
  * The MPEG-7 Edge Histogram descriptor.
@@ -22,8 +20,13 @@ public class EdgeHistogramExtractor extends AbstractDescriptorExtractor<DoubleDe
 	private static final double ROOT2 = Math.sqrt(2);
 	
 	public EdgeHistogramExtractor(String path, int size, int numberOfBlocks, double edgeThreshold) throws IOException {
-		super(new DoubleDescriptorFile(new LargeBinaryFile(path, true)), size, DescriptorFile.DOUBLE_TYPE, "EH");
+		super.init(new DoubleDescriptorFile(path, size, getDimensions(), "EH"));
 		
+		this.numberOfBlocks = numberOfBlocks;
+		this.edgeThreshold = edgeThreshold;
+	}
+	
+	public EdgeHistogramExtractor(int numberOfBlocks, double edgeThreshold) {
 		this.numberOfBlocks = numberOfBlocks;
 		this.edgeThreshold = edgeThreshold;
 	}

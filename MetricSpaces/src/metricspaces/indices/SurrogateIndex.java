@@ -106,7 +106,7 @@ public class SurrogateIndex implements ResultCollectorIndex {
 		MetricSpaceObject query = originalSpace.getObject(queryId);
 		SurrogateResultCollector surrogateCollector = new SurrogateResultCollector(query, collector, radius, surrogateRadius);
 		
-		index.search(query.getObjectID(), surrogateCollector);
+		index.search(queryId, surrogateCollector);
 	}
 
 	@Override

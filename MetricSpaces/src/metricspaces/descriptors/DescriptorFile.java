@@ -14,17 +14,7 @@ public interface DescriptorFile {
     public static final byte SINGLE_TYPE = 2;
     public static final byte RELATIVE_TYPE = 3;
 	public static final byte HASH_TYPE = 4;
-    
-    /**
-     * Sets the header information for a new file, and writes it out to the file.
-     * @param descriptorType
-     * @param size
-     * @param dimensions
-     * @param descriptorName
-     * @throws IOException
-     */
-    public void writeHeader(byte descriptorType, int size, int dimensions, String descriptorName) throws IOException;
-    
+ 
     /**
      * Gets the name of the descriptor.
      * @return

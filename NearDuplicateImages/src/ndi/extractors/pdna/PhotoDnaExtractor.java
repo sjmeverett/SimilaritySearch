@@ -3,11 +3,9 @@ package ndi.extractors.pdna;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import metricspaces.descriptors.DescriptorFile;
 import metricspaces.quantised.QuantisedDescriptor;
 import metricspaces.quantised.QuantisedDescriptorContext;
 import metricspaces.quantised.QuantisedDescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import ndi.extractors.AbstractDescriptorExtractor;
 
 
@@ -23,11 +21,14 @@ public class PhotoDnaExtractor extends AbstractDescriptorExtractor<QuantisedDesc
     private QuantisedDescriptorContext context;
     
     public PhotoDnaExtractor(String path, int size) throws IOException {
-    	LargeBinaryFile lbf = new LargeBinaryFile(path, true);
-    	QuantisedDescriptorFile file = new QuantisedDescriptorFile(lbf, 1, 63 * 255);
+    	QuantisedDescriptorFile file = new QuantisedDescriptorFile(path, size, getDimensions(), "PDNA", 1, 63 * 255);
     	context = file.getDescriptorContext();
     	
-    	super.init(file, size, DescriptorFile.QUANTISED_TYPE, "PDNA");
+    	super.init(file);
+    }
+    
+    public PhotoDnaExtractor() {
+    	
     }
 
     @Override

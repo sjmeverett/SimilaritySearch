@@ -5,10 +5,9 @@ import java.util.Random;
 
 import metricspaces._double.DoubleDescriptor;
 import metricspaces._double.DoubleDescriptorFile;
-import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
-import metricspaces.util.LargeBinaryFile;
 import metricspaces.util.Progress;
+
 import commandline.Command;
 import commandline.ParameterException;
 import commandline.Parameters;
@@ -32,12 +31,10 @@ public class RandomDescriptorCommand implements Command {
 			int count = parameters.getInt("count");
 			int dimensions = parameters.getInt("dimensions");
 			
-			DoubleDescriptorFile output = new DoubleDescriptorFile(new LargeBinaryFile(parameters.require("out"), true));
+			DoubleDescriptorFile output = new DoubleDescriptorFile(parameters.require("out"), count, dimensions, "Random" + dimensions);
 			DescriptorFormat<DoubleDescriptor> outputFormat = output.getFormat();
-			output.writeHeader(DescriptorFile.DOUBLE_TYPE, count, dimensions, "Random" + dimensions);
 			
 			Random random = new Random();
-			
 			progress.setOperation("Generating", count);
 			
 			for (int i = 0; i < count; i++) {

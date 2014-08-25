@@ -7,8 +7,6 @@ import java.util.Set;
 
 import metricspaces._double.DoubleDescriptor;
 import metricspaces._double.DoubleDescriptorFile;
-import metricspaces.descriptors.DescriptorFile;
-import metricspaces.util.LargeBinaryFile;
 import ndi.extractors.AbstractDescriptorExtractor;
 
 /**
@@ -44,7 +42,11 @@ public class ColourStructureExtractor extends AbstractDescriptorExtractor<Double
 	
 	
 	public ColourStructureExtractor(String path, int size) throws IOException {
-		super(new DoubleDescriptorFile(new LargeBinaryFile(path, true)), size, DescriptorFile.DOUBLE_TYPE, "CS");
+		super.init(new DoubleDescriptorFile(path, size, getDimensions(), "CS"));
+	}
+	
+	public ColourStructureExtractor() {
+		
 	}
 	
 	
