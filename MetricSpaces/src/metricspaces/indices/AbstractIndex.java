@@ -104,4 +104,10 @@ public abstract class AbstractIndex implements Index {
 	public byte getIndexImplementation() {
 		return indexImplementation;
 	}
+
+
+	protected void resize(int size) throws IOException {
+		file.resize(size);
+		buffer = file.getBuffer();
+	}
 }
