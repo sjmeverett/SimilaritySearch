@@ -1,7 +1,8 @@
-package metricspaces.indices;
+package metricspaces.indices.resultcollectors;
 
 import java.util.Collection;
 
+import metricspaces.indices.SearchResult;
 import metricspaces.util.FixedSizePriorityQueue;
 
 public class NearestNeighboursResultCollector implements ResultCollector {

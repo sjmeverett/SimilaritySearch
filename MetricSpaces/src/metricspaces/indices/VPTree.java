@@ -3,6 +3,8 @@ package metricspaces.indices;
 import java.io.IOException;
 import java.util.List;
 
+import metricspaces.indices.resultcollectors.ResultCollector;
+import metricspaces.indices.resultcollectors.StandardResultCollector;
 import metricspaces.metrics.MetricSpaceObject;
 import metricspaces.metrics.VantagePointList;
 import metricspaces.util.LargeBinaryFile;

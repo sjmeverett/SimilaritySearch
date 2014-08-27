@@ -1,7 +1,9 @@
-package metricspaces.indices;
+package metricspaces.indices.resultcollectors;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import metricspaces.indices.SearchResult;
 
 public class StandardResultCollector implements ResultCollector {
 	private List<SearchResult> results;

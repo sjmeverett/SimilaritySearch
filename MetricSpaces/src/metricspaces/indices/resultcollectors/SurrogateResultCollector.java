@@ -1,5 +1,6 @@
-package metricspaces.indices;
+package metricspaces.indices.resultcollectors;
 
+import metricspaces.indices.SearchResult;
 import metricspaces.metrics.MetricSpaceObject;
 
 public class SurrogateResultCollector implements ResultCollector {

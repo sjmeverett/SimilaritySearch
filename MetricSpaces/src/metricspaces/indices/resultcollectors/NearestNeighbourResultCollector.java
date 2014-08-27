@@ -1,4 +1,6 @@
-package metricspaces.indices;
+package metricspaces.indices.resultcollectors;
+
+import metricspaces.indices.SearchResult;
 
 
 public class NearestNeighbourResultCollector implements ResultCollector {

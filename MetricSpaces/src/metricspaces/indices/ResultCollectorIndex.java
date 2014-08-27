@@ -1,5 +1,7 @@
 package metricspaces.indices;
 
+import metricspaces.indices.resultcollectors.ResultCollector;
+
 
 /**
  * Represents an index with additional method for searching using ResultCollectors.

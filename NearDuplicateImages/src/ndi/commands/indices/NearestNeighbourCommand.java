@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import metricspaces.indices.Index;
 import metricspaces.indices.IndexFactory;
-import metricspaces.indices.NearestNeighbourResultCollector;
 import metricspaces.indices.ResultCollectorIndex;
 import metricspaces.indices.SurrogateIndex;
+import metricspaces.indices.resultcollectors.NearestNeighbourResultCollector;
 import metricspaces.util.Progress;
 import ndi.files.PairDistanceWriter;
 import commandline.Command;
