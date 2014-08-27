@@ -10,6 +10,7 @@ import ndi.extractors.DescriptorExtractor;
 import ndi.extractors.mpeg7.ColourStructureExtractor;
 import ndi.extractors.mpeg7.EdgeHistogramExtractor;
 import ndi.extractors.pdna.PhotoDnaExtractor;
+import ndi.extractors.phash.PhashDoubleExtractor;
 import ndi.extractors.phash.PhashExtractor;
 
 import commandline.Command;
@@ -51,6 +52,9 @@ public class ExtractDescriptorCommand implements Command {
 			}
 			else if (descriptorName.equals("pHash")) {
 				extractor = new PhashExtractor(outputPath, SIZE);
+			}
+			else if (descriptorName.equals("pHashDouble")) {
+				extractor = new PhashDoubleExtractor(outputPath, SIZE);
 			}
 			else {
 				throw new ParameterException("Unrecognised descriptor name.");
