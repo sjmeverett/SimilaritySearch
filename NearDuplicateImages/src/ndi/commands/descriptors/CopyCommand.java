@@ -25,7 +25,7 @@ import commandline.ProgressReporter;
  * @author stewart
  *
  */
-public class CopyDescriptorsCommand implements Command {
+public class CopyCommand implements Command {
 	private Parameters parameters;
 	
 	@Override
@@ -120,7 +120,7 @@ public class CopyDescriptorsCommand implements Command {
 
 	@Override
 	public String describe() {
-		parameters.describe("descriptorType", "The type of descriptor file to create (byte, double or single)");
+		parameters.describe("descriptorType", "The type of descriptor file to create (double, single or quantised)");
 		parameters.describe("elementmax", "For byte descriptors: the maximum value for any element in the descriptor. "
 				+ "The elements will be scaled by this before being converted to byte. Defaults to 1.");
 		parameters.describe("l1norm", "For byte descriptors: the fixed value that all descriptors sum to, or 0 if "

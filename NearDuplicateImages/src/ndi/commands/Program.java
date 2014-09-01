@@ -7,7 +7,7 @@ import ndi.commands.calculations.GetMeanDistanceCommand;
 import ndi.commands.calculations.SwapColumnsCommand;
 import ndi.commands.calculations.TimeMetricCommand;
 import ndi.commands.calculations.WriteDistancesCommand;
-import ndi.commands.descriptors.CopyDescriptorsCommand;
+import ndi.commands.descriptors.CopyCommand;
 import ndi.commands.descriptors.CopyEh80Command;
 import ndi.commands.descriptors.CopyGistCommand;
 import ndi.commands.descriptors.ExtractDescriptorCommand;
@@ -24,7 +24,7 @@ import commandline.CommandLineProgram;
 public class Program {
 	public static void main(String[] args) {
 		CommandLineProgram program = new CommandLineProgram();
-		program.addCommand(new CopyDescriptorsCommand());
+		program.addCommand(new CopyCommand());
 		program.addCommand(new TimeMetricCommand());
 		program.addCommand(new GetDistanceCommand());
 		program.addCommand(new WriteDistancesCommand());
