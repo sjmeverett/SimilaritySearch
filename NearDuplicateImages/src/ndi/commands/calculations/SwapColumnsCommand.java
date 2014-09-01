@@ -30,7 +30,7 @@ public class SwapColumnsCommand implements Command {
 			PairDistanceWriter writer = new PairDistanceWriter(parameters.require("output"));
 			
 			progress.setOperation("Converting", 1000000);
-			reader.read();
+			reader.readLine();
 			
 			for (int i = 0; i < 1000000; i++) {
 				String[] line = reader.readLine().split(",");
