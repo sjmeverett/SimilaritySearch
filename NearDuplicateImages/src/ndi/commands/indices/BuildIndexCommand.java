@@ -28,7 +28,7 @@ public class BuildIndexCommand implements Command {
 		
 		try {
 			//create the new index file
-			String indexImplementation = parameters.require("indexImplementation");
+			String indexImplementation = parameters.get("indexImplementation", "VP");
 			String indexPath = parameters.require("output");
 			String descriptorPath = parameters.require("objects");
 			String metricName = parameters.require("metric");
@@ -82,7 +82,7 @@ public class BuildIndexCommand implements Command {
 				+ "of the objects in the descriptor file.");
 		parameters.describe("count", "Use this parameter to include a fixed number of points in the index.");
 		parameters.describe("metric", "The metric to use.");
-		parameters.describe("indexImplementation", "The index implentation to use.");
+		parameters.describe("indexImplementation", "The index implementation to use (default VP).");
 		return "Builds a new index file.";
 	}
 
