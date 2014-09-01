@@ -9,6 +9,7 @@ public class CosineAngularMetric extends AbstractMetric<DoubleDescriptor> {
         double[] xdata = x.getData();
         double[] ydata = y.getData();
         assert xdata.length == ydata.length;
+		count++;
 
         double dotProduct = 0;
 

@@ -15,6 +15,7 @@ public class ChebyshevMetric extends AbstractMetric<SingleDescriptor> {
 		float[] xdata = x.getData();
 		float[] ydata = y.getData();
 		float max = Float.NEGATIVE_INFINITY;
+		count++;
 		
 		for (int i = 0; i < xdata.length && max <= threshold; i++) {
 			float d = Math.abs(xdata[i] - ydata[i]);

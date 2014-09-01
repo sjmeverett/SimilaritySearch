@@ -15,6 +15,7 @@ public class SEDByComplexityMetric extends AbstractMetric<QuantisedDescriptor> {
 		QuantisedDescriptorContext context = x.getContext();
 		byte[] xd = x.getData();
 		byte[] yd = y.getData();
+		count++;
 		
 		double e1 = context.getComplexity(xd);
         double e2 = context.getComplexity(yd);

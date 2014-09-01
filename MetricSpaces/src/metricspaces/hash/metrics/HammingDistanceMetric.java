@@ -10,6 +10,7 @@ public class HammingDistanceMetric extends AbstractMetric<HashDescriptor> {
 		byte[] xd = x.getHash();
 		byte[] yd = y.getHash();
 		int distance = 0;
+		count++;
 		
 		for (int i = 0; i < xd.length; i++) {
 			byte mask = 1;

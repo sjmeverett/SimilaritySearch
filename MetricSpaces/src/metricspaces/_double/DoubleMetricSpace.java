@@ -8,6 +8,7 @@ import metricspaces._double.metrics.CosineAngularMetric;
 import metricspaces._double.metrics.EuclidianMetric;
 import metricspaces._double.metrics.ManhattanMetric;
 import metricspaces._double.metrics.SEDByComplexityMetric;
+import metricspaces._double.metrics.TriangularDiscriminationMetric;
 import metricspaces.descriptors.AbstractDescriptorFile;
 import metricspaces.metrics.AbstractMetricSpace;
 import metricspaces.metrics.Metric;
@@ -29,6 +30,7 @@ public class DoubleMetricSpace extends AbstractMetricSpace<DoubleDescriptor> {
 			metrics.put("Euc", new EuclidianMetric());
 			metrics.put("Man", new ManhattanMetric());
 			metrics.put("SED", new SEDByComplexityMetric());
+			metrics.put("TD", new TriangularDiscriminationMetric());
 		}
 		
 		return metrics;

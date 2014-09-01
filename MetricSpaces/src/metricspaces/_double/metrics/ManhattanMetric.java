@@ -9,6 +9,7 @@ public class ManhattanMetric extends AbstractMetric<DoubleDescriptor> {
 		double[] xdata = x.getData();
 		double[] ydata = y.getData();
 		double acc = 0;
+		count++;
 		
 		for (int i = 0; i < xdata.length; i++) {
             acc += Math.abs(xdata[i] - ydata[i]);

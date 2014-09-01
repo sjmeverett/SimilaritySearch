@@ -9,10 +9,11 @@ public class EuclidianMetric extends AbstractMetric<SingleDescriptor> {
 	public double getDistance(SingleDescriptor x, SingleDescriptor y) {
 		float[] xdata = x.getData();
 		float[] ydata = y.getData();	
-		float acc = 0;
+		double acc = 0;
+		count++;
 		
 		for (int i = 0; i < xdata.length; i++) {
-            final float d = xdata[i] - ydata[i];
+            final double d = xdata[i] - ydata[i];
             acc += d * d;
         }
 

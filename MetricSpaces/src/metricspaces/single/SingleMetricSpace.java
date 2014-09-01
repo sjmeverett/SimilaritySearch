@@ -11,6 +11,7 @@ import metricspaces.single.metrics.CosineAngularMetric;
 import metricspaces.single.metrics.EuclidianMetric;
 import metricspaces.single.metrics.ManhattanMetric;
 import metricspaces.single.metrics.SEDByComplexityMetric;
+import metricspaces.single.metrics.TriangularDiscriminationMetric;
 
 public class SingleMetricSpace extends AbstractMetricSpace<SingleDescriptor> {
 	
@@ -28,6 +29,7 @@ public class SingleMetricSpace extends AbstractMetricSpace<SingleDescriptor> {
 			metrics.put("Euc", new EuclidianMetric());
 			metrics.put("Man", new ManhattanMetric());
 			metrics.put("SED", new SEDByComplexityMetric());
+			metrics.put("TD", new TriangularDiscriminationMetric());
 		}
 		
 		return metrics;

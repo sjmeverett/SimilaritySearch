@@ -11,6 +11,7 @@ public class SEDByComplexityMetric extends AbstractMetric<DoubleDescriptor> {
 		double e1 = x.getComplexity();
         double e2 = y.getComplexity();
         double e3 = x.getMergedComplexity(y);
+		count++;
 
         double t1 = Math.max(0, Math.min(1, (e3 / Math.sqrt(e1 * e2)) - 1));
 

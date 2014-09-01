@@ -10,6 +10,7 @@ public class EuclidianMetric extends AbstractMetric<DoubleDescriptor> {
 		double[] xdata = x.getData();
 		double[] ydata = y.getData();	
 		double acc = 0;
+		count++;
 		
 		for (int i = 0; i < xdata.length; i++) {
             final double d = xdata[i] - ydata[i];
