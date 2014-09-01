@@ -1,5 +1,6 @@
 package ndi.commands;
 
+import ndi.commands.calculations.CalculateANMRRCommand;
 import ndi.commands.calculations.CalculateDistancesCommand;
 import ndi.commands.calculations.GetDistanceCommand;
 import ndi.commands.calculations.GetMeanDistanceCommand;
@@ -18,7 +19,6 @@ import ndi.commands.indices.NearestNeighbourCommand;
 import ndi.commands.indices.SearchAllCommand;
 import ndi.commands.indices.SearchCommand;
 import ndi.commands.indices.SearchTimeCommand;
-
 import commandline.CommandLineProgram;
 
 public class Program {
@@ -42,6 +42,7 @@ public class Program {
 		program.addCommand(new NearestNeighbourCommand());
 		program.addCommand(new TimeExtractorCommand());
 		program.addCommand(new SwapColumnsCommand());
+		program.addCommand(new CalculateANMRRCommand());
 		program.run(args);
 	}
 }
