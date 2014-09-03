@@ -59,7 +59,7 @@ public class HashDescriptorCommonFormat implements DescriptorFormat<DoubleDescri
 			for (int j = 0; j < 8; j++) {
 				b <<= 1;
 				
-				if (values[index++] > average) {
+				if (index < values.length && values[index++] > average) {
 					b |= 1;
 				}
 			}

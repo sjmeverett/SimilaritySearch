@@ -10,6 +10,7 @@ import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFileFactory;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.descriptors.TextDescriptorFile;
+import metricspaces.hash.HashDescriptorFile;
 import metricspaces.quantised.QuantisedDescriptorFile;
 import metricspaces.single.SingleDescriptorFile;
 import metricspaces.util.Progress;
@@ -62,7 +63,7 @@ public class CopyCommand implements Command {
 				input = (CommonDescriptorFile)file;
 			}
 
-			String descriptorName = parameters.require("descriptorname");
+			String descriptorName = parameters.require("descriptorName");
 			CommonDescriptorFile output = create(outputPath, input.getSize(), input.getDimensions(), descriptorName);
 			
 			int size = input.getSize();
@@ -106,6 +107,9 @@ public class CopyCommand implements Command {
 			
 			output = new QuantisedDescriptorFile(path, size, dimensions, name, elementMax, l1norm);
 		}
+		else if (type.equals("hash")) {
+			output = new HashDescriptorFile(path, size, (int)Math.ceil((double)dimensions / 8), name);
+		}
 		else {
 			throw new ParameterException("unrecognised descriptor type");
 		}
@@ -130,7 +134,7 @@ public class CopyCommand implements Command {
 		parameters.describe("output", "The path to the file to copy the descriptors to.");
 		parameters.describe("filenameTemplate", "For text descriptor files: a sprintf style string with a placholder for "
 				+ "file number, e.g. 'eh%d.txt'.");
-		parameters.describe("descriptorname", "The name of the output descriptor.");
+		parameters.describe("descriptorName", "The name of the output descriptor.");
 		return "Copies descriptors from one descriptor file to another.";
 	}
 }
