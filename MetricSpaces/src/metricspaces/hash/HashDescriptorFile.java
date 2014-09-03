@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 
+import metricspaces._double.DoubleDescriptor;
 import metricspaces.descriptors.AbstractDescriptorFile;
+import metricspaces.descriptors.CommonDescriptorFile;
 import metricspaces.descriptors.DescriptorFile;
 import metricspaces.descriptors.DescriptorFormat;
 import metricspaces.metrics.MetricSpace;
 import metricspaces.util.LargeBinaryFile;
 
-public class HashDescriptorFile extends AbstractDescriptorFile<HashDescriptor> {
+public class HashDescriptorFile extends AbstractDescriptorFile<HashDescriptor> implements CommonDescriptorFile {
 	private HashDescriptorFormat format;
 	
 	public HashDescriptorFile(LargeBinaryFile file) throws IOException {
@@ -45,6 +47,11 @@ public class HashDescriptorFile extends AbstractDescriptorFile<HashDescriptor> {
 	@Override
 	public DescriptorFormat<HashDescriptor> getFormat(ByteBuffer buffer, int size) {
 		return new HashDescriptorFormat(buffer, dimensions, size);
+	}
+
+	@Override
+	public DescriptorFormat<DoubleDescriptor> getCommonFormat() {
+		return new HashDescriptorCommonFormat(format);
 	}
 
 }

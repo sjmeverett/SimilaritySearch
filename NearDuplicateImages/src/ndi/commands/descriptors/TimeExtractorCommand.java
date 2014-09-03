@@ -10,7 +10,7 @@ import ndi.extractors.AbstractDescriptorExtractor;
 import ndi.extractors.mpeg7.ColourStructureExtractor;
 import ndi.extractors.mpeg7.EdgeHistogramExtractor;
 import ndi.extractors.pdna.PhotoDnaExtractor;
-import ndi.extractors.phash.PhashExtractor;
+import ndi.extractors.phash.PhashDoubleExtractor;
 
 import commandline.Command;
 import commandline.ParameterException;
@@ -46,7 +46,7 @@ public class TimeExtractorCommand implements Command {
 				extractor = new PhotoDnaExtractor();
 			}
 			else if (descriptorName.equals("pHash")) {
-				extractor = new PhashExtractor();
+				extractor = new PhashDoubleExtractor();
 			}
 			else {
 				throw new ParameterException("Unrecognised descriptor name.");
