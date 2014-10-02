@@ -148,6 +148,7 @@ public class VPTree extends AbstractIndex implements ResultCollectorIndex {
 	
 	@Override
 	public int getKey(int position) {
+		//TODO: this is wrong
 		buffer.position(dataOffset + position * NODE_SIZE + 24);
 		return buffer.getInt();
 	}

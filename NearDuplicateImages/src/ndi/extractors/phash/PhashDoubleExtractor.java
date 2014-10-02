@@ -17,7 +17,6 @@ public class PhashDoubleExtractor extends AbstractDescriptorExtractor<DoubleDesc
 	private static final int SIZE = 32;
 	private static final int REDUCED_SIZE = 8;
 	private static final int LENGTH = REDUCED_SIZE * REDUCED_SIZE - 1;
-	private static final int DIMENSIONS = (int)Math.ceil(LENGTH / 8);
 
 	
 	public PhashDoubleExtractor() {
@@ -45,7 +44,7 @@ public class PhashDoubleExtractor extends AbstractDescriptorExtractor<DoubleDesc
 
 	@Override
 	public int getDimensions() {
-		return DIMENSIONS;
+		return LENGTH;
 	}
 
 	private BufferedImage resize(BufferedImage image, int width, int height) {
